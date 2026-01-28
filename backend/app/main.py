@@ -3,6 +3,8 @@
 from fastapi import FastAPI
 
 from app.features.auth.api import router as auth_router
+from app.features.keys.api import router as keys_router
+from app.features.generate.api import router as generate_router
 
 app = FastAPI(
     title="NanoBanana API",
@@ -20,9 +22,8 @@ async def health_check():
 # Auth routes
 app.include_router(auth_router, prefix="/v1/auth", tags=["auth"])
 
-# TODO: Add remaining routers
-# from app.features.keys.api import router as keys_router
-# from app.features.generate.api import router as generate_router
-#
-# app.include_router(keys_router, prefix="/v1/keys", tags=["keys"])
-# app.include_router(generate_router, prefix="/v1", tags=["generate"])
+# Keys routes
+app.include_router(keys_router, prefix="/v1/keys", tags=["keys"])
+
+# Generate routes
+app.include_router(generate_router, prefix="/v1", tags=["generate"])

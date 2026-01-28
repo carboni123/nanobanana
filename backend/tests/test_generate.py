@@ -1,0 +1,247 @@
+"""Tests for image generation endpoints."""
+
+from datetime import date
+from unittest.mock import MagicMock, patch
+
+import pytest
+import pytest_asyncio
+from httpx import AsyncClient
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.usage import Usage
+
+
+@pytest_asyncio.fixture
+async def auth_token(client: AsyncClient, test_user_data: dict) -> str:
+    """Create a user and return their auth token."""
+    response = await client.post("/v1/auth/register", json=test_user_data)
+    assert response.status_code == 201
+    return response.json()["access_token"]
+
+
+@pytest_asyncio.fixture
+async def api_key(client: AsyncClient, auth_token: str) -> str:
+    """Create an API key and return the full key string."""
+    response = await client.post(
+        "/v1/keys",
+        json={"name": "Test Key"},
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    assert response.status_code == 201
+    return response.json()["key"]
+
+
+@pytest.fixture
+def api_key_headers(api_key: str) -> dict:
+    """Return headers with API key."""
+    return {"Authorization": f"Bearer {api_key}"}
+
+
+@pytest.fixture
+def mock_gemini_response():
+    """Create a mock Gemini API response."""
+    mock_image = MagicMock()
+    mock_image.image_bytes = b"fake_image_bytes"
+
+    mock_generated_image = MagicMock()
+    mock_generated_image.image = mock_image
+
+    mock_response = MagicMock()
+    mock_response.generated_images = [mock_generated_image]
+
+    return mock_response
+
+
+class TestGenerateSuccess:
+    """Tests for successful image generation."""
+
+    @pytest.mark.asyncio
+    async def test_generate_success(
+        self, client: AsyncClient, api_key_headers: dict, mock_gemini_response
+    ) -> None:
+        """Generating an image with valid API key returns image URL."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+            mock_settings.r2_access_key = ""
+            mock_settings.r2_secret_key = ""
+            mock_settings.r2_endpoint = ""
+
+            with patch.dict("sys.modules", {"google": MagicMock(), "google.genai": MagicMock()}):
+                with patch("google.genai.Client") as mock_client_class:
+                    mock_client = MagicMock()
+                    mock_client.models.generate_images.return_value = mock_gemini_response
+                    mock_client_class.return_value = mock_client
+
+                    response = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A cute banana"},
+                        headers=api_key_headers,
+                    )
+
+        assert response.status_code == 201
+        data = response.json()
+
+        assert "id" in data
+        assert data["id"].startswith("gen_")
+        assert "url" in data
+        assert data["url"].startswith("data:image/png;base64,")
+        assert data["prompt"] == "A cute banana"
+        assert "created_at" in data
+
+
+class TestGenerateAuth:
+    """Tests for authentication on generate endpoint."""
+
+    @pytest.mark.asyncio
+    async def test_generate_invalid_api_key(self, client: AsyncClient) -> None:
+        """Generating with invalid API key returns 401."""
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": "A banana"},
+            headers={"Authorization": "Bearer nb_live_invalid00000000000000000000"},
+        )
+
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_generate_missing_api_key(self, client: AsyncClient) -> None:
+        """Generating without API key returns 401."""
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": "A banana"},
+        )
+
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_generate_revoked_key_rejected(
+        self, client: AsyncClient, auth_token: str, api_key: str, mock_gemini_response
+    ) -> None:
+        """Generating with revoked API key returns 401."""
+        # Get the key ID by listing keys
+        list_response = await client.get(
+            "/v1/keys",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+        key_id = list_response.json()["keys"][0]["id"]
+
+        # Revoke the key
+        await client.delete(
+            f"/v1/keys/{key_id}",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        # Try to use revoked key
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": "A banana"},
+            headers={"Authorization": f"Bearer {api_key}"},
+        )
+
+        assert response.status_code == 401
+        assert "revoked" in response.json()["detail"].lower()
+
+
+class TestGenerateValidation:
+    """Tests for request validation."""
+
+    @pytest.mark.asyncio
+    async def test_generate_missing_prompt(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generating without prompt returns 422."""
+        response = await client.post(
+            "/v1/generate",
+            json={},
+            headers=api_key_headers,
+        )
+
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_generate_empty_prompt(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generating with empty prompt returns 422."""
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": ""},
+            headers=api_key_headers,
+        )
+
+        assert response.status_code == 422
+
+
+class TestGenerateUsage:
+    """Tests for usage tracking."""
+
+    @pytest.mark.asyncio
+    async def test_generate_usage_recorded(
+        self,
+        client: AsyncClient,
+        api_key_headers: dict,
+        db_session: AsyncSession,
+        mock_gemini_response,
+    ) -> None:
+        """Generating an image increments usage count."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+            mock_settings.r2_access_key = ""
+            mock_settings.r2_secret_key = ""
+            mock_settings.r2_endpoint = ""
+
+            with patch.dict("sys.modules", {"google": MagicMock(), "google.genai": MagicMock()}):
+                with patch("google.genai.Client") as mock_client_class:
+                    mock_client = MagicMock()
+                    mock_client.models.generate_images.return_value = mock_gemini_response
+                    mock_client_class.return_value = mock_client
+
+                    # Generate first image
+                    response1 = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A banana 1"},
+                        headers=api_key_headers,
+                    )
+                    assert response1.status_code == 201
+
+                    # Generate second image
+                    response2 = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A banana 2"},
+                        headers=api_key_headers,
+                    )
+                    assert response2.status_code == 201
+
+        # Check usage was recorded
+        # Note: We use a fresh session read since the test client commits
+        result = await db_session.execute(
+            select(Usage).where(Usage.usage_date == date.today())
+        )
+        usage_records = list(result.scalars().all())
+
+        # There should be usage recorded
+        assert len(usage_records) >= 1
+        total_count = sum(u.image_count for u in usage_records)
+        assert total_count >= 2
+
+
+class TestGenerateServiceErrors:
+    """Tests for service configuration errors."""
+
+    @pytest.mark.asyncio
+    async def test_generate_no_google_api_key(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generating without GOOGLE_API_KEY returns 503."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = ""
+
+            response = await client.post(
+                "/v1/generate",
+                json={"prompt": "A banana"},
+                headers=api_key_headers,
+            )
+
+        assert response.status_code == 503
+        assert "not configured" in response.json()["detail"].lower()
