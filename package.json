@@ -1,0 +1,38 @@
+{
+  "name": "nanobanana",
+  "version": "1.0.0",
+  "description": "NanoBanana - Simple API for AI image generation",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "agent": "npx ts-node orchestrate.ts",
+    "standup": "npx ts-node orchestrate.ts standup",
+    "ceo": "npx ts-node orchestrate.ts ceo",
+    "cto": "npx ts-node orchestrate.ts cto",
+    "tech-lead": "npx ts-node orchestrate.ts tech-lead",
+    "qa": "npx ts-node orchestrate.ts qa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carboni123/nanobanana.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/carboni123/nanobanana/issues"
+  },
+  "homepage": "https://github.com/carboni123/nanobanana#readme",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.22"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
