@@ -2,6 +2,8 @@
 
 from fastapi import FastAPI
 
+from app.features.auth.api import router as auth_router
+
 app = FastAPI(
     title="NanoBanana API",
     description="Simple image generation API powered by Google Gemini",
@@ -15,11 +17,12 @@ async def health_check():
     return {"status": "healthy"}
 
 
-# TODO: Add routers
-# from app.features.auth.api import router as auth_router
+# Auth routes
+app.include_router(auth_router, prefix="/v1/auth", tags=["auth"])
+
+# TODO: Add remaining routers
 # from app.features.keys.api import router as keys_router
 # from app.features.generate.api import router as generate_router
 #
-# app.include_router(auth_router, prefix="/v1/auth", tags=["auth"])
 # app.include_router(keys_router, prefix="/v1/keys", tags=["keys"])
 # app.include_router(generate_router, prefix="/v1", tags=["generate"])

@@ -1,10 +1,12 @@
 """Application configuration."""
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment."""
+
+    model_config = SettingsConfigDict(env_file=".env")
 
     # Database
     database_url: str = "postgresql+asyncpg://localhost/nanobanana"
@@ -24,9 +26,6 @@ class Settings(BaseSettings):
     # Auth
     secret_key: str = "change-me-in-production"
     access_token_expire_minutes: int = 60 * 24 * 7  # 1 week
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()
