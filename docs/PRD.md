@@ -127,3 +127,15 @@ Response:
 - Multiple AI providers
 - Team accounts
 - Self-hosted option
+
+## CTO Assessment
+
+- **Scope is appropriately minimal**: The MVP correctly focuses on the core value prop (simple API keys → image generation). Deferring dashboard to v0.2 is the right call—API-first users won't need it immediately.
+
+- **Critical missing piece: Billing integration**: Payment processing (Stripe) isn't mentioned in MVP features but is implicit in the pricing tiers. Clarify: is v0.1 free-only, or do we need Stripe integration before launch? Recommend launching with free tier only to reduce Week 1-3 scope.
+
+- **Risk: Google API dependency**: The "Open Questions" section flags outages but doesn't address API quota limits or account suspension risk. We should have a second Google Cloud project as failover, and implement circuit breaker pattern in the Gemini integration layer.
+
+- **Image storage policy needs decision now**: R2 storage costs scale linearly with usage. Recommend 30-day retention for free tier, permanent for paid. This affects database schema (need `expires_at` field) and should be decided before Week 2 integration work.
+
+- **Rate limiting before auth is a security gap**: The PRD lists rate limiting as Week 3, but we need IP-based rate limiting on registration/login endpoints from Day 1 to prevent credential stuffing and abuse. Move basic IP throttling to Week 1.
