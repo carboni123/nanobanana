@@ -6,6 +6,7 @@ from app.features.auth.api import router as auth_router
 from app.features.keys.api import router as keys_router
 from app.features.generate.api import router as generate_router
 from app.features.health.api import router as health_router
+from app.features.hello.api import router as hello_router
 from app.features.usage.api import router as usage_router
 
 app = FastAPI(
@@ -17,6 +18,9 @@ app = FastAPI(
 
 # Health routes
 app.include_router(health_router, tags=["health"])
+
+# Hello routes
+app.include_router(hello_router, prefix="/v1", tags=["hello"])
 
 # Auth routes
 app.include_router(auth_router, prefix="/v1/auth", tags=["auth"])
