@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
@@ -8,51 +9,53 @@ import Usage from './pages/Usage';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Public routes (no layout) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public routes (no layout) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Protected routes (with layout) */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/api-keys"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <div className="text-center py-12">
-                  <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
-                  <p className="mt-4 text-gray-600">API Keys page - Coming soon</p>
-                </div>
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/usage"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Usage />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected routes (with layout) */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/api-keys"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <div className="text-center py-12">
+                    <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
+                    <p className="mt-4 text-gray-600">API Keys page - Coming soon</p>
+                  </div>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/usage"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Usage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+          {/* Default redirect */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

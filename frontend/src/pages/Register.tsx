@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { apiClient, ApiClientError } from '../services/api';
+import { ApiClientError } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface FormErrors {
   email?: string;
@@ -10,6 +11,7 @@ interface FormErrors {
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,6 +19,13 @@ export default function Register() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Email validation using regex
   const validateEmail = (email: string): boolean => {
@@ -69,8 +78,8 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      // Call the register API
-      await apiClient.register({ email, password });
+      // Call the register method from AuthContext
+      await register({ email, password });
 
       // Show success message briefly
       setSuccessMessage('Registration successful! Redirecting to dashboard...');

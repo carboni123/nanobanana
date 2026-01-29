@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { apiClient, ApiClientError } from '../services/api';
+import { ApiClientError } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface FormErrors {
   email?: string;
@@ -9,12 +10,20 @@ interface FormErrors {
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Email validation using regex
   const validateEmail = (email: string): boolean => {
@@ -61,8 +70,8 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Call the login API
-      await apiClient.login({ email, password });
+      // Call the login method from AuthContext
+      await login({ email, password });
 
       // Show success message briefly
       setSuccessMessage('Login successful! Redirecting...');
