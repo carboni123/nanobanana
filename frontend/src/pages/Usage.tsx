@@ -29,6 +29,8 @@ import type {
   KeyResponse,
   DailyUsageEntry,
 } from '../types/api';
+import LoadingSkeleton from '../components/LoadingSkeleton';
+import EmptyState from '../components/EmptyState';
 
 type TimeRange = 7 | 30 | 90;
 type ChartType = 'line' | 'bar';
@@ -134,11 +136,17 @@ export default function Usage() {
   // Loading state
   if (isLoading) {
     return (
-      <div>
+      <div className="animate-in fade-in duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Usage Analytics</h1>
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading usage analytics...</p>
+        <p className="text-gray-600 mb-6">
+          Monitor your API usage and track performance over time.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <LoadingSkeleton variant="stat" count={4} />
+        </div>
+        <LoadingSkeleton variant="chart" count={1} />
+        <div className="mt-8">
+          <LoadingSkeleton variant="table" count={3} />
         </div>
       </div>
     );
@@ -147,18 +155,21 @@ export default function Usage() {
   // Error state
   if (error) {
     return (
-      <div>
+      <div className="animate-in fade-in duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Usage Analytics</h1>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <p className="text-red-800 font-semibold">Error loading usage analytics</p>
-          <p className="text-red-600 mt-2">{error}</p>
-          <button
-            onClick={fetchUsageData}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
+          title="Error loading usage analytics"
+          description={error}
+          action={{
+            label: "Try Again",
+            onClick: fetchUsageData
+          }}
+        />
       </div>
     );
   }
@@ -166,41 +177,27 @@ export default function Usage() {
   // Empty state (no usage data)
   if (!summary || summary.total_images === 0) {
     return (
-      <div>
+      <div className="animate-in fade-in duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Usage Analytics</h1>
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
-          </svg>
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">No usage data yet</h3>
-          <p className="mt-2 text-gray-600">
-            Start making API calls to see your usage analytics here.
-          </p>
-          {summary && summary.total_keys === 0 && (
-            <button
-              onClick={() => (window.location.href = '/api-keys')}
-              className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
-            >
-              Create Your First API Key
-            </button>
-          )}
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          }
+          title="No usage data yet"
+          description="Start making API calls to see your usage analytics here."
+          action={summary && summary.total_keys === 0 ? {
+            label: "Create Your First API Key",
+            onClick: () => (window.location.href = '/api-keys')
+          } : undefined}
+        />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-300">
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Usage Analytics</h1>
@@ -312,7 +309,7 @@ export default function Usage() {
             <p className="text-sm text-gray-600 mt-1">API calls over time</p>
           </div>
 
-          <div className="flex gap-2 mt-4 md:mt-0">
+          <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
             {/* Chart Type Selector */}
             <div className="inline-flex rounded-md shadow-sm" role="group">
               <button
@@ -517,28 +514,20 @@ export default function Usage() {
             </table>
           </div>
         ) : (
-          <div className="px-6 py-12 text-center">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-              />
-            </svg>
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">No API keys found</h3>
-            <p className="mt-2 text-gray-600">Create an API key to start tracking usage.</p>
-            <button
-              onClick={() => (window.location.href = '/api-keys')}
-              className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
-            >
-              Manage API Keys
-            </button>
+          <div className="px-6 py-12">
+            <EmptyState
+              icon={
+                <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+              }
+              title="No API keys found"
+              description="Create an API key to start tracking usage."
+              action={{
+                label: "Manage API Keys",
+                onClick: () => (window.location.href = '/api-keys')
+              }}
+            />
           </div>
         )}
       </div>

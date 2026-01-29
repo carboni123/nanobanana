@@ -10,8 +10,11 @@
  */
 
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { apiClient } from '../services/api';
 import type { KeyResponse, CreateKeyResponse } from '../types/api';
+import LoadingSkeleton from '../components/LoadingSkeleton';
+import EmptyState from '../components/EmptyState';
 
 export default function ApiKeys() {
   const [keys, setKeys] = useState<KeyResponse[]>([]);
@@ -65,13 +68,16 @@ export default function ApiKeys() {
 
       // Show the full key to the user (only time they'll see it)
       setNewlyCreatedKey(response);
+      toast.success('API key created successfully!');
 
       // Close the create modal and refresh the list
       setIsCreateModalOpen(false);
       setNewKeyName('');
       await fetchKeys();
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : 'Failed to create API key');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create API key';
+      setCreateError(errorMsg);
+      toast.error(errorMsg);
       console.error('Failed to create key:', err);
     } finally {
       setIsCreating(false);
@@ -89,12 +95,15 @@ export default function ApiKeys() {
 
     try {
       await apiClient.deleteApiKey(keyToDelete.id);
+      toast.success('API key revoked successfully');
 
       // Close the delete modal and refresh the list
       setKeyToDelete(null);
       await fetchKeys();
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Failed to delete API key');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to delete API key';
+      setDeleteError(errorMsg);
+      toast.error(errorMsg);
       console.error('Failed to delete key:', err);
     } finally {
       setIsDeleting(false);
@@ -108,10 +117,11 @@ export default function ApiKeys() {
     try {
       await navigator.clipboard.writeText(key);
       setCopied(true);
+      toast.success('API key copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
-      alert('Failed to copy to clipboard. Please copy manually.');
+      toast.error('Failed to copy to clipboard. Please copy manually.');
     }
   };
 
@@ -139,12 +149,12 @@ export default function ApiKeys() {
   // Loading state
   if (isLoading) {
     return (
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">API Keys</h1>
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading API keys...</p>
+      <div className="animate-in fade-in duration-300">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
+          <div className="h-10 w-36 bg-gray-200 rounded animate-pulse"></div>
         </div>
+        <LoadingSkeleton variant="table" count={3} />
       </div>
     );
   }
@@ -152,26 +162,29 @@ export default function ApiKeys() {
   // Error state
   if (error) {
     return (
-      <div>
+      <div className="animate-in fade-in duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">API Keys</h1>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <p className="text-red-800 font-semibold">Error loading API keys</p>
-          <p className="text-red-600 mt-2">{error}</p>
-          <button
-            onClick={fetchKeys}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
+          title="Error loading API keys"
+          description={error}
+          action={{
+            label: "Try Again",
+            onClick: fetchKeys
+          }}
+        />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-300">
       {/* Page Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
         <button
           onClick={() => setIsCreateModalOpen(true)}
@@ -183,34 +196,22 @@ export default function ApiKeys() {
 
       {/* Empty State */}
       {keys.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-            />
-          </svg>
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">No API keys yet</h3>
-          <p className="mt-2 text-gray-600">
-            Get started by creating your first API key to access the NanoBanana API.
-          </p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
-          >
-            Create Your First Key
-          </button>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          }
+          title="No API keys yet"
+          description="Get started by creating your first API key to access the NanoBanana API."
+          action={{
+            label: "Create Your First Key",
+            onClick: () => setIsCreateModalOpen(true)
+          }}
+        />
       ) : (
         /* API Keys Table */
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -282,8 +283,8 @@ export default function ApiKeys() {
 
       {/* Create Key Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Create New API Key</h2>
 
             <form onSubmit={handleCreateKey}>
@@ -339,8 +340,8 @@ export default function ApiKeys() {
 
       {/* New Key Display Modal (Show full key only once) */}
       {newlyCreatedKey && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 animate-in zoom-in-95 duration-200">
             <div className="flex items-start mb-4">
               <div className="flex-shrink-0">
                 <svg
@@ -415,8 +416,8 @@ export default function ApiKeys() {
 
       {/* Delete Confirmation Modal */}
       {keyToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               {keyToDelete.is_active ? 'Revoke' : 'Delete'} API Key
             </h2>

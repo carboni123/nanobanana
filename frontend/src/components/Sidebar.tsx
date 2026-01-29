@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
@@ -22,6 +23,9 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
 
     // Perform logout
     logout();
+
+    // Show success message
+    toast.success('Logged out successfully');
 
     // Redirect to login page
     navigate('/login', { replace: true });

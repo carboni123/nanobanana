@@ -13,6 +13,8 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '../services/api';
+import LoadingSkeleton from '../components/LoadingSkeleton';
+import EmptyState from '../components/EmptyState';
 
 interface DashboardStats {
   totalKeys: number;
@@ -65,11 +67,21 @@ export default function Dashboard() {
   // Loading state
   if (isLoading) {
     return (
-      <div>
+      <div className="animate-in fade-in duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-banana-500 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        <p className="text-gray-600 mb-6">
+          Welcome to NanoBanana! Here's an overview of your API usage.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <LoadingSkeleton variant="stat" count={4} />
+        </div>
+        <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-40 mb-4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
+          </div>
         </div>
       </div>
     );
@@ -78,24 +90,27 @@ export default function Dashboard() {
   // Error state
   if (error) {
     return (
-      <div>
+      <div className="animate-in fade-in duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <p className="text-red-800 font-semibold">Error loading dashboard</p>
-          <p className="text-red-600 mt-2">{error}</p>
-          <button
-            onClick={fetchDashboardStats}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
+          title="Error loading dashboard"
+          description={error}
+          action={{
+            label: "Try Again",
+            onClick: fetchDashboardStats
+          }}
+        />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-300">
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
