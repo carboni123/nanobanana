@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ApiKeys from './pages/ApiKeys';
 import Usage from './pages/Usage';
 
 function App() {
@@ -32,10 +33,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <div className="text-center py-12">
-                    <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
-                    <p className="mt-4 text-gray-600">API Keys page - Coming soon</p>
-                  </div>
+                  <ApiKeys />
                 </Layout>
               </ProtectedRoute>
             }
