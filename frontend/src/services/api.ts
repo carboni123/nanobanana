@@ -42,6 +42,55 @@ import type {
 const DEFAULT_BASE_URL = '/api';
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const TOKEN_STORAGE_KEY = 'nanobanana_token';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Sleep utility for retry delays
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry a function with exponential backoff
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = MAX_RETRIES,
+  baseDelay: number = RETRY_DELAY
+): Promise<T> {
+  let lastError: Error;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+
+      // Don't retry if it's not a retryable error
+      if (error instanceof ApiClientError && !error.isRetryable()) {
+        throw error;
+      }
+
+      // Don't retry on the last attempt
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      // Calculate exponential backoff delay
+      const delay = baseDelay * Math.pow(2, attempt);
+      console.log(`Request failed, retrying in ${delay}ms... (attempt ${attempt + 1}/${maxRetries})`);
+      await sleep(delay);
+    }
+  }
+
+  throw lastError!;
+}
 
 // ============================================================================
 // Error Handling
@@ -104,6 +153,20 @@ export class ApiClientError extends Error {
    */
   isConflictError(): boolean {
     return this.status === 409;
+  }
+
+  /**
+   * Check if error is a network error (no response from server)
+   */
+  isNetworkError(): boolean {
+    return this.status === 0;
+  }
+
+  /**
+   * Check if error is retryable (network error or 5xx server error)
+   */
+  isRetryable(): boolean {
+    return this.isNetworkError() || (this.status >= 500 && this.status < 600);
   }
 }
 
@@ -200,6 +263,7 @@ export const tokenStorage = {
 export class ApiClient {
   private client: AxiosInstance;
   private onAuthError?: () => void;
+  private retryEnabled: boolean;
 
   constructor(config: ApiClientConfig = {}) {
     this.client = axios.create({
@@ -210,6 +274,7 @@ export class ApiClient {
       },
     });
 
+    this.retryEnabled = true; // Enable retry by default
     this.setupInterceptors();
   }
 
@@ -255,6 +320,23 @@ export class ApiClient {
     this.onAuthError = handler;
   }
 
+  /**
+   * Enable or disable automatic retry for failed requests
+   */
+  public setRetryEnabled(enabled: boolean): void {
+    this.retryEnabled = enabled;
+  }
+
+  /**
+   * Execute a request with optional retry logic
+   */
+  private async executeWithRetry<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.retryEnabled) {
+      return retryWithBackoff(fn);
+    }
+    return fn();
+  }
+
   // ==========================================================================
   // Authentication Endpoints
   // ==========================================================================
@@ -291,12 +373,14 @@ export class ApiClient {
    * Get current user information
    */
   async getCurrentUser(): Promise<UserResponse> {
-    try {
-      const response = await this.client.get<UserResponse>('/auth/me');
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error as AxiosError);
-    }
+    return this.executeWithRetry(async () => {
+      try {
+        const response = await this.client.get<UserResponse>('/auth/me');
+        return response.data;
+      } catch (error) {
+        throw handleApiError(error as AxiosError);
+      }
+    });
   }
 
   /**
@@ -356,12 +440,14 @@ export class ApiClient {
    * List all API keys for the authenticated user
    */
   async listApiKeys(): Promise<KeyListResponse> {
-    try {
-      const response = await this.client.get<KeyListResponse>('/keys');
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error as AxiosError);
-    }
+    return this.executeWithRetry(async () => {
+      try {
+        const response = await this.client.get<KeyListResponse>('/keys');
+        return response.data;
+      } catch (error) {
+        throw handleApiError(error as AxiosError);
+      }
+    });
   }
 
   /**
@@ -383,38 +469,44 @@ export class ApiClient {
    * Get usage summary across all user's API keys
    */
   async getUsageSummary(): Promise<UsageSummaryResponse> {
-    try {
-      const response = await this.client.get<UsageSummaryResponse>('/usage/summary');
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error as AxiosError);
-    }
+    return this.executeWithRetry(async () => {
+      try {
+        const response = await this.client.get<UsageSummaryResponse>('/usage/summary');
+        return response.data;
+      } catch (error) {
+        throw handleApiError(error as AxiosError);
+      }
+    });
   }
 
   /**
    * Get daily usage breakdown for the last N days
    */
   async getDailyUsage(days: number = 30): Promise<DailyUsageResponse> {
-    try {
-      const response = await this.client.get<DailyUsageResponse>('/usage/daily', {
-        params: { days },
-      });
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error as AxiosError);
-    }
+    return this.executeWithRetry(async () => {
+      try {
+        const response = await this.client.get<DailyUsageResponse>('/usage/daily', {
+          params: { days },
+        });
+        return response.data;
+      } catch (error) {
+        throw handleApiError(error as AxiosError);
+      }
+    });
   }
 
   /**
    * Get usage statistics for a specific API key
    */
   async getKeyUsage(keyId: string): Promise<KeyUsageResponse> {
-    try {
-      const response = await this.client.get<KeyUsageResponse>(`/usage/key/${keyId}`);
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error as AxiosError);
-    }
+    return this.executeWithRetry(async () => {
+      try {
+        const response = await this.client.get<KeyUsageResponse>(`/usage/key/${keyId}`);
+        return response.data;
+      } catch (error) {
+        throw handleApiError(error as AxiosError);
+      }
+    });
   }
 }
 
