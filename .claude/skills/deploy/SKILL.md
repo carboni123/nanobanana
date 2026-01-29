@@ -1,73 +1,64 @@
 ---
 name: deploy
 description: |
-  Deploy the meuassistenteia-app to production. Use this skill when:
+  Deploy NanoBanana to production. Use this skill when:
   (1) User wants to deploy the latest changes
   (2) User mentions "deploy", "update production", or "ship it"
-  (3) User wants to update the retail microservice
-  (4) User needs to restart infrastructure services
-  Handles git pull, docker compose down/up for main app and microservices.
+  (3) User needs to restart infrastructure services
+  Handles git pull, docker compose down/up for app and shared infrastructure.
 ---
 
 # Deploy
 
-Deploy meuassistenteia-app to production on the Linux VPS.
+Deploy NanoBanana to production on the Raspberry Pi.
 
 ## Usage
 
 ```
-/deploy              # Deploy main app only
-/deploy --retail     # Deploy main app + retail microservice
-/deploy --infra      # Restart infrastructure (postgres, cloudflared)
+/deploy              # Deploy app only (backend, frontend, redis, cloudflared)
+/deploy --infra      # Restart shared infrastructure (postgres)
 /deploy --all        # Deploy everything
 ```
 
 ---
 
-## Deployment Locations
+## Architecture
 
-| Component | Path | Description |
-|-----------|------|-------------|
-| **Main App** | `/srv/projects/meuassistenteia-app` | Backend + Frontend + Workers |
-| **Retail Microservice** | `/srv/projects/meuassistenteia-app/meuassistenteia-retail` | Retail vertical extension |
-| **Infrastructure** | `/srv/projects/infra` | PostgreSQL + Cloudflared (rarely updated) |
+NanoBanana uses a **shared_infra** Docker network for PostgreSQL, which is shared across multiple projects on the same machine.
+
+| Component | Path | Network | Description |
+|-----------|------|---------|-------------|
+| **App** | `/home/pi/nanobanana` | `default` + `shared_infra` | Backend, Frontend, Redis, Cloudflared |
+| **PostgreSQL** | `/home/pi/nanobanana/infra` | `shared_infra` | Shared database server (pg_server) |
+
+The backend container connects to both the project-local `default` network (for Redis) and the external `shared_infra` network (for PostgreSQL).
 
 ---
 
 ## Deployment Workflow
 
-### Main App Deployment
+### App Deployment (default)
 
 ```bash
-cd /srv/projects/meuassistenteia-app
+cd /home/pi/nanobanana
 git pull origin master
-docker compose down           # Prevent memory crashes during build
-docker compose up -d --build  # Rebuild and start
+docker compose -f docker-compose.prod.yml down
+docker compose -f docker-compose.prod.yml up -d --build
 
-# Run database migrations (already validated in dev)
-docker exec crm-backend alembic upgrade head
+# Run database migrations
+docker exec nanobanana-backend alembic upgrade head
 ```
 
-### Retail Microservice Deployment
+### Infrastructure (if --infra or --all)
 
 ```bash
-cd /srv/projects/meuassistenteia-app/meuassistenteia-retail
-docker compose down
-docker compose up -d --build
-```
-
-### Infrastructure Restart (Rare)
-
-```bash
-cd /srv/projects/infra
+# Ensure shared_infra network exists
+cd /home/pi/nanobanana/infra
+bash create_network.sh
 
 # PostgreSQL
 docker compose -f docker-compose-postgres.yml down
 docker compose -f docker-compose-postgres.yml up -d
-
-# Cloudflared tunnel
-docker compose -f docker-compose-cloudflared.yml down
-docker compose -f docker-compose-cloudflared.yml up -d
 ```
 
 ---
@@ -80,20 +71,17 @@ When this skill is invoked:
 
 Parse arguments to determine what to deploy:
 
-| Argument | Deploy Main App | Deploy Retail | Restart Infra |
-|----------|-----------------|---------------|---------------|
-| (none) | Yes | No | No |
-| `--retail` | Yes | Yes | No |
-| `--infra` | No | No | Yes |
-| `--all` | Yes | Yes | Yes |
+| Argument | Deploy App | Restart Infra |
+|----------|------------|---------------|
+| (none)   | Yes        | No            |
+| `--infra`| No         | Yes           |
+| `--all`  | Yes        | Yes           |
 
 ### 2. Pre-Deployment Checks
 
-Before deploying, run these checks:
-
 ```bash
 # Check current git status
-cd /srv/projects/meuassistenteia-app && git status
+cd /home/pi/nanobanana && git status
 
 # Check for uncommitted changes
 git diff --stat
@@ -103,53 +91,46 @@ If there are uncommitted changes, **warn the user** before proceeding.
 
 ### 3. Execute Deployment
 
-#### Main App
+#### Shared Infrastructure (if --infra or --all)
+
+Run this **before** the app deployment so PostgreSQL is available.
 
 ```bash
-cd /srv/projects/meuassistenteia-app
+cd /home/pi/nanobanana/infra
 
-# Pull latest changes
-git pull origin master
-
-# Stop containers (prevents memory issues during build)
-docker compose down
-
-# Rebuild and start
-docker compose up -d --build
-
-# Run database migrations
-docker exec crm-backend alembic upgrade head
-```
-
-#### Retail Microservice (if --retail or --all)
-
-```bash
-cd /srv/projects/meuassistenteia-app/meuassistenteia-retail
-
-# Stop containers
-docker compose down
-
-# Rebuild and start
-docker compose up -d --build
-```
-
-#### Infrastructure (if --infra or --all)
-
-```bash
-cd /srv/projects/infra
+# Ensure shared_infra network exists
+bash create_network.sh
 
 # PostgreSQL
 docker compose -f docker-compose-postgres.yml down
 docker compose -f docker-compose-postgres.yml up -d
+```
 
-# Cloudflared tunnel
-docker compose -f docker-compose-cloudflared.yml down
-docker compose -f docker-compose-cloudflared.yml up -d
+Wait for PostgreSQL to be healthy before continuing:
+
+```bash
+docker exec pg_server pg_isready -U postgres
+```
+
+#### App Deployment (default or --all)
+
+```bash
+cd /home/pi/nanobanana
+
+# Pull latest changes
+git pull origin master
+
+# Stop containers (prevents memory issues during build on Pi)
+docker compose -f docker-compose.prod.yml down
+
+# Rebuild and start
+docker compose -f docker-compose.prod.yml up -d --build
+
+# Run database migrations
+docker exec nanobanana-backend alembic upgrade head
 ```
 
 ### 4. Post-Deployment Verification
-
-After deployment completes:
 
 ```bash
 # Check all containers are running
@@ -173,23 +154,39 @@ If containers fail to start:
 docker logs <container_name> --tail 50
 
 # Check docker compose logs
-docker compose logs --tail 50
+docker compose -f docker-compose.prod.yml logs --tail 50
 ```
 
 Common issues:
+- **shared_infra network missing**: Run `bash /home/pi/nanobanana/infra/create_network.sh`
+- **pg_server not running**: Start infra first with `/deploy --infra`
 - **Port conflicts**: Another service using the same port
-- **Memory issues**: Server ran out of memory during build
-- **Network issues**: External dependencies unreachable
-- **Config errors**: Environment variables missing
+- **Memory issues**: Pi ran out of memory during build (use `docker compose down` first)
+- **Config errors**: Environment variables missing in `.env`
 
 ---
 
 ## Safety Notes
 
-1. **Always `docker compose down` before `up --build`** - Prevents memory crashes on low-memory VPS
+1. **Always `docker compose down` before `up --build`** - Prevents memory crashes on low-memory Pi
 2. **Infrastructure rarely needs updates** - Only restart if explicitly requested
 3. **Check git status first** - Warn about uncommitted changes
 4. **Verify containers after deploy** - Ensure all services started successfully
+5. **shared_infra network must exist** before starting the app - the `create_network.sh` script handles this
+
+---
+
+## Expected Containers
+
+After a full deployment, these containers should be running:
+
+| Container | Service | Network |
+|-----------|---------|---------|
+| `pg_server` | PostgreSQL | `shared_infra` |
+| `nanobanana-redis` | Redis | `default` |
+| `nanobanana-backend` | FastAPI | `default` + `shared_infra` |
+| `nanobanana-frontend` | Nginx (SPA) | `default` |
+| `nanobanana-cloudflared` | Cloudflare Tunnel | `default` |
 
 ---
 
@@ -199,7 +196,7 @@ Common issues:
 
 **Agent**:
 ```
-Deploying main app...
+Deploying NanoBanana app...
 
 1. Checking git status...
    - Branch: master
@@ -218,33 +215,33 @@ Deploying main app...
    - alembic upgrade head completed
 
 6. Verifying deployment...
-   - backend: running
-   - frontend: running
-   - celery-worker: running
-   - celery-beat: running
-   - redis: running
+   - nanobanana-backend: running
+   - nanobanana-frontend: running
+   - nanobanana-redis: running
+   - nanobanana-cloudflared: running
 
 Deployment complete!
 ```
 
 ---
 
-**User**: `/deploy --retail`
+**User**: `/deploy --all`
 
 **Agent**:
 ```
-Deploying main app + retail microservice...
+Deploying infrastructure + NanoBanana app...
 
-[Main App]
+[Infrastructure]
+1. Ensuring shared_infra network exists... done
+2. Starting PostgreSQL... done
+3. Waiting for pg_server healthy... done
+
+[App]
 1. Pulling latest changes... done
 2. docker compose down... done
 3. docker compose up -d --build... done
-4. Verification: all containers running
-
-[Retail Microservice]
-1. docker compose down... done
-2. docker compose up -d --build... done
-3. Verification: retail service running
+4. Running migrations... done
+5. Verification: all containers running
 
 Deployment complete!
 ```
