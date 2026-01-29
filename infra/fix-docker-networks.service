@@ -1,0 +1,12 @@
+[Unit]
+Description=Fix Docker network connections after reboot
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/srv/projects/infra/fix-docker-networks.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
