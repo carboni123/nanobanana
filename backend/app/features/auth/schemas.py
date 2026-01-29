@@ -42,3 +42,16 @@ class RegisterResponse(BaseModel):
     user: UserResponse
     access_token: str
     token_type: str = "bearer"
+
+
+class UpdateProfileRequest(BaseModel):
+    """Request schema for updating user profile."""
+
+    email: EmailStr
+
+
+class ChangePasswordRequest(BaseModel):
+    """Request schema for changing password."""
+
+    current_password: str
+    new_password: str = Field(..., min_length=8, max_length=128)

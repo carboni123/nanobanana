@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ApiKeys from './pages/ApiKeys';
 import Usage from './pages/Usage';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -69,6 +70,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Usage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Settings />
                 </Layout>
               </ProtectedRoute>
             }

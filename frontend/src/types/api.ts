@@ -34,6 +34,15 @@ export interface RegisterResponse {
   token_type: string;
 }
 
+export interface UpdateProfileRequest {
+  email: string;
+}
+
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
 // ============================================================================
 // API Key Types
 // ============================================================================

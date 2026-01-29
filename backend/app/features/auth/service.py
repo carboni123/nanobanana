@@ -92,3 +92,27 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
     if not verify_password(password, user.password_hash):
         return None
     return user
+
+
+async def update_user_email(db: AsyncSession, user: User, new_email: str) -> User:
+    """Update a user's email address."""
+    user.email = new_email
+    await db.flush()
+    await db.refresh(user)
+    return user
+
+
+async def update_user_password(
+    db: AsyncSession, user: User, current_password: str, new_password: str
+) -> bool:
+    """Update a user's password.
+
+    Returns True if password was updated successfully, False if current password is incorrect.
+    """
+    if not verify_password(current_password, user.password_hash):
+        return False
+
+    user.password_hash = hash_password(new_password)
+    await db.flush()
+    await db.refresh(user)
+    return True

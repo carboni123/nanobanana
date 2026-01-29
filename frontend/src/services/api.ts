@@ -19,6 +19,8 @@ import type {
   RegisterResponse,
   TokenResponse,
   UserResponse,
+  UpdateProfileRequest,
+  ChangePasswordRequest,
   // API Key types
   CreateKeyRequest,
   CreateKeyResponse,
@@ -292,6 +294,29 @@ export class ApiClient {
     try {
       const response = await this.client.get<UserResponse>('/auth/me');
       return response.data;
+    } catch (error) {
+      throw handleApiError(error as AxiosError);
+    }
+  }
+
+  /**
+   * Update user profile information
+   */
+  async updateProfile(data: UpdateProfileRequest): Promise<UserResponse> {
+    try {
+      const response = await this.client.put<UserResponse>('/auth/me', data);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error as AxiosError);
+    }
+  }
+
+  /**
+   * Change user password
+   */
+  async changePassword(data: ChangePasswordRequest): Promise<void> {
+    try {
+      await this.client.post('/auth/me/password', data);
     } catch (error) {
       throw handleApiError(error as AxiosError);
     }

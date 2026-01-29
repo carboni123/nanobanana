@@ -8,8 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.features.auth.dependencies import CurrentUser
 from app.features.auth.schemas import (
+    ChangePasswordRequest,
     RegisterResponse,
     TokenResponse,
+    UpdateProfileRequest,
     UserLoginRequest,
     UserRegisterRequest,
     UserResponse,
@@ -19,6 +21,8 @@ from app.features.auth.service import (
     create_access_token,
     create_user,
     get_user_by_email,
+    update_user_email,
+    update_user_password,
 )
 
 router = APIRouter()
@@ -108,3 +112,65 @@ async def get_current_user_info(
         email=current_user.email,
         created_at=current_user.created_at,
     )
+
+
+@router.put(
+    "/me",
+    response_model=UserResponse,
+    responses={
+        401: {"description": "Not authenticated"},
+        409: {"description": "Email already in use"},
+    },
+)
+async def update_profile(
+    request: UpdateProfileRequest,
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> UserResponse:
+    """Update the current user's profile information.
+
+    Currently supports updating the email address.
+    """
+    # Check if new email is already taken by another user
+    if request.email != current_user.email:
+        existing_user = await get_user_by_email(db, request.email)
+        if existing_user is not None and existing_user.id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email already in use",
+            )
+
+        current_user = await update_user_email(db, current_user, request.email)
+
+    return UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        created_at=current_user.created_at,
+    )
+
+
+@router.post(
+    "/me/password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        401: {"description": "Not authenticated or incorrect current password"},
+    },
+)
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> None:
+    """Change the current user's password.
+
+    Requires the current password for verification.
+    """
+    success = await update_user_password(
+        db, current_user, request.current_password, request.new_password
+    )
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Current password is incorrect",
+        )
