@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.features.auth.api import router as auth_router
 from app.features.keys.api import router as keys_router
 from app.features.generate.api import router as generate_router
+from app.features.health.api import router as health_router
 
 app = FastAPI(
     title="NanoBanana API",
@@ -13,11 +14,8 @@ app = FastAPI(
 )
 
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}
-
+# Health routes
+app.include_router(health_router, tags=["health"])
 
 # Auth routes
 app.include_router(auth_router, prefix="/v1/auth", tags=["auth"])
