@@ -5,12 +5,14 @@ import { apiClient, ApiClientError } from '../services/api';
 interface FormErrors {
   email?: string;
   password?: string;
+  confirmPassword?: string;
 }
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -43,6 +45,12 @@ export default function Login() {
       newErrors.password = 'Password must be at least 8 characters';
     }
 
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -61,11 +69,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Call the login API
-      await apiClient.login({ email, password });
+      // Call the register API
+      await apiClient.register({ email, password });
 
       // Show success message briefly
-      setSuccessMessage('Login successful! Redirecting...');
+      setSuccessMessage('Registration successful! Redirecting to dashboard...');
 
       // Redirect to dashboard after a short delay
       setTimeout(() => {
@@ -74,8 +82,8 @@ export default function Login() {
     } catch (error) {
       if (error instanceof ApiClientError) {
         // Handle specific error cases
-        if (error.isAuthError()) {
-          setApiError('Invalid email or password');
+        if (error.isConflictError()) {
+          setApiError('An account with this email already exists');
         } else if (error.isValidationError()) {
           setApiError(error.detail);
         } else {
@@ -95,20 +103,20 @@ export default function Login() {
         {/* Header */}
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to NanoBanana
+            Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
             <Link
-              to="/register"
+              to="/login"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
-              create a new account
+              sign in to your existing account
             </Link>
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Register Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             {/* Email Field */}
@@ -150,7 +158,7 @@ export default function Login() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
                 value={password}
                 onChange={(e) => {
@@ -163,11 +171,53 @@ export default function Login() {
                 className={`appearance-none relative block w-full px-3 py-2 border ${
                   errors.password ? 'border-red-300' : 'border-gray-300'
                 } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
-                placeholder="Enter your password"
+                placeholder="Minimum 8 characters"
                 disabled={isLoading}
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              )}
+              {!errors.password && password && (
+                <p className="mt-1 text-xs text-gray-500">
+                  {password.length >= 8 ? (
+                    <span className="text-green-600">✓ Password meets minimum length</span>
+                  ) : (
+                    <span>{8 - password.length} more characters needed</span>
+                  )}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password Field */}
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  // Clear error when user starts typing
+                  if (errors.confirmPassword) {
+                    setErrors({ ...errors, confirmPassword: undefined });
+                  }
+                }}
+                className={`appearance-none relative block w-full px-3 py-2 border ${
+                  errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                placeholder="Re-enter your password"
+                disabled={isLoading}
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+              )}
+              {!errors.confirmPassword && confirmPassword && password === confirmPassword && (
+                <p className="mt-1 text-xs text-green-600">✓ Passwords match</p>
               )}
             </div>
           </div>
@@ -253,10 +303,10 @@ export default function Login() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Signing in...
+                  Creating account...
                 </span>
               ) : (
-                'Sign in'
+                'Create account'
               )}
             </button>
           </div>

@@ -69,7 +69,9 @@ export class ApiClientError extends Error {
     this.validationErrors = validationErrors;
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof (Error as any).captureStackTrace === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (Error as any).captureStackTrace(this, ApiClientError);
     }
   }

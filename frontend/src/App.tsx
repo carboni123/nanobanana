@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Usage from './pages/Usage';
 
@@ -10,33 +12,40 @@ function App() {
       <Routes>
         {/* Public routes (no layout) */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Protected routes (with layout) */}
         <Route
           path="/dashboard"
           element={
-            <Layout>
-              <Dashboard />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/api-keys"
           element={
-            <Layout>
-              <div className="text-center py-12">
-                <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
-                <p className="mt-4 text-gray-600">API Keys page - Coming soon</p>
-              </div>
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <div className="text-center py-12">
+                  <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
+                  <p className="mt-4 text-gray-600">API Keys page - Coming soon</p>
+                </div>
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/usage"
           element={
-            <Layout>
-              <Usage />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Usage />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
