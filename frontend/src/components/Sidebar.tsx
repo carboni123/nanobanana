@@ -154,7 +154,8 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
             {/* Mobile close button */}
             <button
               onClick={onMobileClose}
-              className="lg:hidden text-gray-500 hover:text-gray-700"
+              className="lg:hidden text-gray-500 hover:text-gray-700 p-2 -mr-2 rounded-md hover:bg-gray-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Close menu"
             >
               <svg
                 className="w-6 h-6"
@@ -174,17 +175,17 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
 
           {/* User info */}
           {user && (
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center min-h-[60px]">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-banana-500 flex items-center justify-center">
-                    <span className="text-sm font-medium text-gray-900">
+                  <div className="w-10 h-10 rounded-full bg-banana-500 flex items-center justify-center">
+                    <span className="text-base font-medium text-gray-900">
                       {user.email.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                <div className="ml-3 min-w-0 flex-1">
+                  <p className="text-sm sm:text-base font-medium text-gray-900 truncate">
                     {user.email}
                   </p>
                 </div>
@@ -200,12 +201,12 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
                 to={link.path}
                 onClick={onMobileClose}
                 className={`
-                  flex items-center px-4 py-3 text-sm font-medium rounded-lg
-                  transition-colors duration-150
+                  flex items-center px-4 py-3 text-sm sm:text-base font-medium rounded-lg
+                  transition-colors duration-150 min-h-[48px] touch-manipulation
                   ${
                     isActive(link.path)
                       ? 'bg-banana-500 text-gray-900'
-                      : 'text-gray-700 hover:bg-banana-100 hover:text-gray-900'
+                      : 'text-gray-700 hover:bg-banana-100 hover:text-gray-900 active:bg-banana-200'
                   }
                 `}
               >
@@ -220,7 +221,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="flex items-center w-full px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-red-50 hover:text-red-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center w-full px-4 py-3 text-sm sm:text-base font-medium text-gray-700 rounded-lg hover:bg-red-50 hover:text-red-700 active:bg-red-100 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
             >
               {isLoggingOut ? (
                 <>

@@ -137,15 +137,15 @@ export default function Usage() {
   if (isLoading) {
     return (
       <div className="animate-in fade-in duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Usage Analytics</h1>
-        <p className="text-gray-600 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Usage Analytics</h1>
+        <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
           Monitor your API usage and track performance over time.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <LoadingSkeleton variant="stat" count={4} />
         </div>
         <LoadingSkeleton variant="chart" count={1} />
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <LoadingSkeleton variant="table" count={3} />
         </div>
       </div>
@@ -156,7 +156,7 @@ export default function Usage() {
   if (error) {
     return (
       <div className="animate-in fade-in duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Usage Analytics</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Usage Analytics</h1>
         <EmptyState
           icon={
             <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -178,7 +178,7 @@ export default function Usage() {
   if (!summary || summary.total_images === 0) {
     return (
       <div className="animate-in fade-in duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Usage Analytics</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Usage Analytics</h1>
         <EmptyState
           icon={
             <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,15 +199,15 @@ export default function Usage() {
   return (
     <div className="animate-in fade-in duration-300">
       {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Usage Analytics</h1>
-        <p className="mt-2 text-gray-600">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Usage Analytics</h1>
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
           Monitor your API usage and track performance over time.
         </p>
       </div>
 
       {/* Summary Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <StatCard
           title="Total API Calls"
           value={summary.total_images}
@@ -302,23 +302,23 @@ export default function Usage() {
       </div>
 
       {/* Daily Usage Chart */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">Daily Usage</h2>
-            <p className="text-sm text-gray-600 mt-1">API calls over time</p>
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Daily Usage</h2>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">API calls over time</p>
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+          <div className="flex flex-wrap gap-2 shrink-0">
             {/* Chart Type Selector */}
             <div className="inline-flex rounded-md shadow-sm" role="group">
               <button
                 type="button"
                 onClick={() => setChartType('line')}
-                className={`px-4 py-2 text-sm font-medium border rounded-l-md transition-colors ${
+                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border rounded-l-md transition-colors min-h-[44px] touch-manipulation ${
                   chartType === 'line'
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
                 Line
@@ -326,10 +326,10 @@ export default function Usage() {
               <button
                 type="button"
                 onClick={() => setChartType('bar')}
-                className={`px-4 py-2 text-sm font-medium border-t border-r border-b rounded-r-md transition-colors ${
+                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-t border-r border-b rounded-r-md transition-colors min-h-[44px] touch-manipulation ${
                   chartType === 'bar'
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
                 Bar
@@ -341,10 +341,10 @@ export default function Usage() {
               <button
                 type="button"
                 onClick={() => setTimeRange(7)}
-                className={`px-4 py-2 text-sm font-medium border rounded-l-md transition-colors ${
+                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border rounded-l-md transition-colors min-h-[44px] touch-manipulation ${
                   timeRange === 7
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
                 7D
@@ -352,10 +352,10 @@ export default function Usage() {
               <button
                 type="button"
                 onClick={() => setTimeRange(30)}
-                className={`px-4 py-2 text-sm font-medium border-t border-b transition-colors ${
+                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-t border-b transition-colors min-h-[44px] touch-manipulation ${
                   timeRange === 30
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
                 30D
@@ -363,10 +363,10 @@ export default function Usage() {
               <button
                 type="button"
                 onClick={() => setTimeRange(90)}
-                className={`px-4 py-2 text-sm font-medium border rounded-r-md transition-colors ${
+                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border rounded-r-md transition-colors min-h-[44px] touch-manipulation ${
                   timeRange === 90
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 active:bg-gray-100'
                 }`}
               >
                 90D
@@ -377,21 +377,22 @@ export default function Usage() {
 
         {/* Chart */}
         {dailyUsage.length > 0 ? (
-          <div className="h-80">
+          <div className="h-64 sm:h-80 -mx-2 sm:mx-0">
             <ResponsiveContainer width="100%" height="100%">
               {chartType === 'line' ? (
                 <LineChart
                   data={dailyUsage}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
                     dataKey="usage_date"
                     tickFormatter={formatDate}
                     stroke="#6b7280"
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: '10px' }}
+                    interval="preserveStartEnd"
                   />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#6b7280" style={{ fontSize: '10px' }} width={40} />
                   <Tooltip
                     labelFormatter={(label) => formatFullDate(label as string)}
                     contentStyle={{
@@ -415,16 +416,17 @@ export default function Usage() {
               ) : (
                 <BarChart
                   data={dailyUsage}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
                     dataKey="usage_date"
                     tickFormatter={formatDate}
                     stroke="#6b7280"
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: '10px' }}
+                    interval="preserveStartEnd"
                   />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#6b7280" style={{ fontSize: '10px' }} width={40} />
                   <Tooltip
                     labelFormatter={(label) => formatFullDate(label as string)}
                     contentStyle={{
@@ -441,77 +443,82 @@ export default function Usage() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-80 flex items-center justify-center text-gray-500">
-            <p>No usage data available for the selected time range</p>
+          <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 px-4">
+            <p className="text-sm sm:text-base text-center">No usage data available for the selected time range</p>
           </div>
         )}
       </div>
 
       {/* Per-Key Breakdown Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Usage by API Key</h2>
-          <p className="text-sm text-gray-600 mt-1">Detailed breakdown of usage per key</p>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Usage by API Key</h2>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">Detailed breakdown of usage per key</p>
         </div>
 
         {keyUsageData.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Key Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Key Prefix
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Calls
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Used
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {keyUsageData
-                  .sort((a, b) => b.usage.total_images - a.usage.total_images)
-                  .map(({ key, usage }) => (
-                    <tr key={key.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {key.name || <span className="text-gray-400 italic">Unnamed</span>}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <code className="text-sm font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
-                          {key.prefix}...
-                        </code>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {key.is_active ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Revoked
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
-                        {usage.total_images.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
-                        {key.last_used_at ? formatFullDate(key.last_used_at) : 'Never'}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Key Name
+                    </th>
+                    <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Key Prefix
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Calls
+                    </th>
+                    <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Last Used
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {keyUsageData
+                    .sort((a, b) => b.usage.total_images - a.usage.total_images)
+                    .map(({ key, usage }) => (
+                      <tr key={key.id} className="hover:bg-gray-50">
+                        <td className="px-4 sm:px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900 max-w-[120px] sm:max-w-none truncate">
+                            {key.name || <span className="text-gray-400 italic">Unnamed</span>}
+                          </div>
+                          <div className="sm:hidden text-xs text-gray-500 font-mono mt-1">
+                            {key.prefix}...
+                          </div>
+                        </td>
+                        <td className="hidden sm:table-cell px-4 sm:px-6 py-4 whitespace-nowrap">
+                          <code className="text-xs sm:text-sm font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                            {key.prefix}...
+                          </code>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                          {key.is_active ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              Revoked
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-medium">
+                          {usage.total_images.toLocaleString()}
+                        </td>
+                        <td className="hidden md:table-cell px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          {key.last_used_at ? formatFullDate(key.last_used_at) : 'Never'}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <div className="px-6 py-12">
@@ -549,13 +556,13 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, bgColor, iconColor, subtitle }: StatCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`${bgColor} ${iconColor} p-3 rounded-lg`}>{icon}</div>
+    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className={`${bgColor} ${iconColor} p-2.5 sm:p-3 rounded-lg`}>{icon}</div>
       </div>
       <div>
-        <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
+        <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">{title}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
         {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
       </div>
     </div>

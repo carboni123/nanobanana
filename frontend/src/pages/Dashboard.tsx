@@ -68,19 +68,19 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="animate-in fade-in duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-        <p className="text-gray-600 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
           Welcome to NanoBanana! Here's an overview of your API usage.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <LoadingSkeleton variant="stat" count={4} />
         </div>
-        <div className="bg-white rounded-lg shadow p-6 animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-40 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 animate-pulse">
+          <div className="h-5 sm:h-6 bg-gray-200 rounded w-32 sm:w-40 mb-3 sm:mb-4"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="h-28 sm:h-32 bg-gray-200 rounded"></div>
+            <div className="h-28 sm:h-32 bg-gray-200 rounded"></div>
+            <div className="h-28 sm:h-32 bg-gray-200 rounded"></div>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="animate-in fade-in duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Dashboard</h1>
         <EmptyState
           icon={
             <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,15 +112,15 @@ export default function Dashboard() {
   return (
     <div className="animate-in fade-in duration-300">
       {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
           Welcome to NanoBanana! Here's an overview of your API usage.
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Total API Keys */}
         <StatCard
           title="Total API Keys"
@@ -217,9 +217,9 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <QuickActionCard
             title="Manage API Keys"
             description="Create, view, and revoke your API keys"
@@ -259,15 +259,15 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, bgColor, iconColor, subtitle }: StatCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`${bgColor} ${iconColor} p-3 rounded-lg`}>
+    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className={`${bgColor} ${iconColor} p-2.5 sm:p-3 rounded-lg`}>
           {icon}
         </div>
       </div>
       <div>
-        <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
+        <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">{title}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
         {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
       </div>
     </div>
@@ -297,10 +297,10 @@ function QuickActionCard({ title, description, icon, href, external }: QuickActi
   return (
     <button
       onClick={handleClick}
-      className="text-left p-4 border-2 border-gray-200 rounded-lg hover:border-banana-500 hover:bg-banana-50 transition-all duration-200 group"
+      className="text-left p-4 sm:p-5 border-2 border-gray-200 rounded-lg hover:border-banana-500 hover:bg-banana-50 active:bg-banana-100 transition-all duration-200 group min-h-[120px] touch-manipulation"
     >
-      <div className="text-3xl mb-2">{icon}</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-banana-700">
+      <div className="text-2xl sm:text-3xl mb-2">{icon}</div>
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 group-hover:text-banana-700">
         {title}
       </h3>
       <p className="text-sm text-gray-600">{description}</p>

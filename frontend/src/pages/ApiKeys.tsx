@@ -150,9 +150,9 @@ export default function ApiKeys() {
   if (isLoading) {
     return (
       <div className="animate-in fade-in duration-300">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
-          <div className="h-10 w-36 bg-gray-200 rounded animate-pulse"></div>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">API Keys</h1>
+          <div className="h-11 w-full sm:w-36 bg-gray-200 rounded animate-pulse"></div>
         </div>
         <LoadingSkeleton variant="table" count={3} />
       </div>
@@ -163,7 +163,7 @@ export default function ApiKeys() {
   if (error) {
     return (
       <div className="animate-in fade-in duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">API Keys</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">API Keys</h1>
         <EmptyState
           icon={
             <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -184,11 +184,11 @@ export default function ApiKeys() {
   return (
     <div className="animate-in fade-in duration-300">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">API Keys</h1>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+          className="px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors font-medium text-sm sm:text-base min-h-[44px] touch-manipulation w-full sm:w-auto"
         >
           Create New Key
         </button>
@@ -211,81 +211,126 @@ export default function ApiKeys() {
         />
       ) : (
         /* API Keys Table */
-        <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Key Prefix
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Last Used
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {keys.map((key) => (
-                <tr key={key.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Mobile Card View */}
+          <div className="block sm:hidden divide-y divide-gray-200">
+            {keys.map((key) => (
+              <div key={key.id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1 min-w-0 mr-3">
+                    <div className="text-sm font-medium text-gray-900 truncate mb-1">
                       {key.name || <span className="text-gray-400 italic">Unnamed</span>}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <code className="text-sm font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                    <code className="text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
                       {key.prefix}...
                     </code>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  </div>
+                  <div>
                     {key.is_active ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         Revoked
                       </span>
                     )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {key.last_used_at ? formatDate(key.last_used_at) : 'Never'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(key.created_at)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => setKeyToDelete(key)}
-                      className="text-red-600 hover:text-red-900 transition-colors"
-                      disabled={!key.is_active}
-                    >
-                      {key.is_active ? 'Revoke' : 'Delete'}
-                    </button>
-                  </td>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                  <div>
+                    <div className="mb-0.5">Last used: {key.last_used_at ? formatDate(key.last_used_at) : 'Never'}</div>
+                    <div>Created: {formatDate(key.created_at)}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setKeyToDelete(key)}
+                  className="w-full px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-md hover:bg-red-50 active:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-manipulation"
+                  disabled={!key.is_active}
+                >
+                  {key.is_active ? 'Revoke' : 'Delete'}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Key Prefix
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Last Used
+                  </th>
+                  <th className="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {keys.map((key) => (
+                  <tr key={key.id} className="hover:bg-gray-50">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 max-w-[150px] lg:max-w-none truncate">
+                        {key.name || <span className="text-gray-400 italic">Unnamed</span>}
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <code className="text-xs sm:text-sm font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                        {key.prefix}...
+                      </code>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      {key.is_active ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          Revoked
+                        </span>
+                      )}
+                    </td>
+                    <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {key.last_used_at ? formatDate(key.last_used_at) : 'Never'}
+                    </td>
+                    <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(key.created_at)}
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => setKeyToDelete(key)}
+                        className="text-red-600 hover:text-red-900 transition-colors px-2 py-1 min-h-[36px] touch-manipulation"
+                        disabled={!key.is_active}
+                      >
+                        {key.is_active ? 'Revoke' : 'Delete'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Create Key Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Create New API Key</h2>
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5 sm:p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Create New API Key</h2>
 
             <form onSubmit={handleCreateKey}>
               <div className="mb-4">
@@ -312,7 +357,7 @@ export default function ApiKeys() {
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -320,14 +365,14 @@ export default function ApiKeys() {
                     setNewKeyName('');
                     setCreateError(null);
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[44px] touch-manipulation"
                   disabled={isCreating}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-manipulation"
                   disabled={isCreating}
                 >
                   {isCreating ? 'Creating...' : 'Create Key'}
@@ -341,7 +386,7 @@ export default function ApiKeys() {
       {/* New Key Display Modal (Show full key only once) */}
       {newlyCreatedKey && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-5 sm:p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start mb-4">
               <div className="flex-shrink-0">
                 <svg
@@ -383,16 +428,16 @@ export default function ApiKeys() {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={newlyCreatedKey.key}
                   readOnly
-                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm font-mono"
+                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-xs sm:text-sm font-mono break-all"
                 />
                 <button
                   onClick={() => handleCopyKey(newlyCreatedKey.key)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                  className="px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors font-medium min-h-[44px] touch-manipulation whitespace-nowrap"
                 >
                   {copied ? '✓ Copied!' : 'Copy'}
                 </button>
@@ -405,7 +450,7 @@ export default function ApiKeys() {
                   setNewlyCreatedKey(null);
                   setCopied(false);
                 }}
-                className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors font-medium"
+                className="w-full sm:w-auto px-6 py-2.5 bg-gray-900 text-white rounded-md hover:bg-gray-800 active:bg-gray-700 transition-colors font-medium min-h-[44px] touch-manipulation"
               >
                 I've Saved My Key
               </button>
@@ -417,7 +462,7 @@ export default function ApiKeys() {
       {/* Delete Confirmation Modal */}
       {keyToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5 sm:p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               {keyToDelete.is_active ? 'Revoke' : 'Delete'} API Key
             </h2>
@@ -448,21 +493,21 @@ export default function ApiKeys() {
               </div>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setKeyToDelete(null);
                   setDeleteError(null);
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[44px] touch-manipulation"
                 disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteKey}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-md hover:bg-red-700 active:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-manipulation"
                 disabled={isDeleting}
               >
                 {isDeleting ? 'Deleting...' : keyToDelete.is_active ? 'Revoke Key' : 'Delete Key'}

@@ -150,20 +150,20 @@ export default function Settings() {
   return (
     <div className="animate-in fade-in duration-300 max-w-4xl">
       {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-2 text-gray-600">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Settings</h1>
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
           Manage your account settings and preferences
         </p>
       </div>
 
       {/* Settings Sections */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Profile Information Section */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Profile Information</h2>
-            <p className="mt-1 text-sm text-gray-600">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Profile Information</h2>
+            <p className="mt-1 text-xs sm:text-sm text-gray-600">
               Update your account's profile information
             </p>
           </div>
@@ -174,7 +174,7 @@ export default function Settings() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
                   Email Address
                 </label>
@@ -188,9 +188,9 @@ export default function Settings() {
                       message: 'Please enter a valid email address',
                     },
                   })}
-                  className={`w-full px-3 py-2 border ${
+                  className={`w-full px-3 py-2.5 border text-base ${
                     profileErrors.email ? 'border-red-300' : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px] touch-manipulation`}
                   placeholder="you@example.com"
                   disabled={isUpdatingProfile}
                 />
@@ -222,7 +222,7 @@ export default function Settings() {
                 <button
                   type="submit"
                   disabled={isUpdatingProfile}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[44px] touch-manipulation"
                 >
                   {isUpdatingProfile ? (
                     <>
@@ -258,10 +258,10 @@ export default function Settings() {
         </div>
 
         {/* Change Password Section */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Change Password</h2>
-            <p className="mt-1 text-sm text-gray-600">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Change Password</h2>
+            <p className="mt-1 text-xs sm:text-sm text-gray-600">
               Update your password to keep your account secure
             </p>
           </div>
@@ -272,7 +272,7 @@ export default function Settings() {
               <div>
                 <label
                   htmlFor="currentPassword"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
                   Current Password
                 </label>
@@ -283,11 +283,11 @@ export default function Settings() {
                   {...registerPassword('currentPassword', {
                     required: 'Current password is required',
                   })}
-                  className={`w-full px-3 py-2 border ${
+                  className={`w-full px-3 py-2.5 border text-base ${
                     passwordErrors.currentPassword
                       ? 'border-red-300'
                       : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px] touch-manipulation`}
                   placeholder="Enter your current password"
                   disabled={isChangingPassword}
                 />
@@ -302,7 +302,7 @@ export default function Settings() {
               <div>
                 <label
                   htmlFor="newPassword"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
                   New Password
                 </label>
@@ -317,9 +317,9 @@ export default function Settings() {
                       message: 'Password must be at least 8 characters',
                     },
                   })}
-                  className={`w-full px-3 py-2 border ${
+                  className={`w-full px-3 py-2.5 border text-base ${
                     passwordErrors.newPassword ? 'border-red-300' : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px] touch-manipulation`}
                   placeholder="Enter your new password"
                   disabled={isChangingPassword}
                 />
@@ -337,7 +337,7 @@ export default function Settings() {
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
                   Confirm New Password
                 </label>
@@ -350,11 +350,11 @@ export default function Settings() {
                     validate: (value) =>
                       value === newPassword || 'Passwords do not match',
                   })}
-                  className={`w-full px-3 py-2 border ${
+                  className={`w-full px-3 py-2.5 border text-base ${
                     passwordErrors.confirmPassword
                       ? 'border-red-300'
                       : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px] touch-manipulation`}
                   placeholder="Confirm your new password"
                   disabled={isChangingPassword}
                 />
@@ -370,7 +370,7 @@ export default function Settings() {
                 <button
                   type="submit"
                   disabled={isChangingPassword}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[44px] touch-manipulation"
                 >
                   {isChangingPassword ? (
                     <>
@@ -406,11 +406,11 @@ export default function Settings() {
         </div>
 
         {/* Security Note */}
-        <div className="bg-banana-50 border border-banana-200 rounded-lg p-4">
+        <div className="bg-banana-50 border border-banana-200 rounded-lg p-4 sm:p-5">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg
-                className="h-5 w-5 text-banana-700"
+                className="h-5 w-5 sm:h-6 sm:w-6 text-banana-700"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -423,11 +423,11 @@ export default function Settings() {
                 />
               </svg>
             </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-banana-900">
+            <div className="ml-3 flex-1">
+              <h3 className="text-sm sm:text-base font-medium text-banana-900">
                 Security Tips
               </h3>
-              <div className="mt-2 text-sm text-banana-800">
+              <div className="mt-2 text-xs sm:text-sm text-banana-800">
                 <ul className="list-disc list-inside space-y-1">
                   <li>Use a strong, unique password for your account</li>
                   <li>Never share your API keys or password with anyone</li>
