@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "hello": "npx ts-node hello.ts",
     "agent": "npx ts-node orchestrate.ts",
     "standup": "npx ts-node orchestrate.ts standup",
     "ceo": "npx ts-node orchestrate.ts ceo",
