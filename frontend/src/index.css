@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+@theme {
+  /* Banana color palette */
+  --color-banana-50: #fffef0;
+  --color-banana-100: #fffacc;
+  --color-banana-200: #fff699;
+  --color-banana-300: #ffed66;
+  --color-banana-400: #ffe333;
+  --color-banana-500: #ffd700;
+  --color-banana-600: #ccac00;
+  --color-banana-700: #998100;
+  --color-banana-800: #665600;
+  --color-banana-900: #332b00;
+
+  /* Animation utilities */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-in-from-bottom: slide-in-from-bottom 0.5s ease-out;
+  --animate-zoom-in: zoom-in 0.2s ease-out;
+}
+
 .animate-in {
   animation-fill-mode: both;
 }
