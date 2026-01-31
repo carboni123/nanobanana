@@ -75,7 +75,7 @@ describe('Login Page', () => {
     it('should redirect if already authenticated', () => {
       // Mock authenticated state
       vi.mocked(useAuth).mockReturnValue({
-        user: { id: '1', email: 'test@example.com', is_active: true, created_at: '', updated_at: '' },
+        user: { id: '1', email: 'test@example.com', created_at: '' },
         isAuthenticated: true,
         isLoading: false,
         login: mockLogin,

@@ -4,22 +4,12 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    deps: {
-      inline: ['vitest-canvas-mock'],
-    },
-  },
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
-    pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
+    pool: 'forks',
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', 'dist', 'e2e'],
     coverage: {

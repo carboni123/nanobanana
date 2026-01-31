@@ -5,11 +5,7 @@ FROM python:3.14-slim as builder
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update &&     apt-get install -y --no-install-recommends     gcc     libpq-dev     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better layer caching
 COPY requirements.txt .
@@ -25,23 +21,22 @@ FROM python:3.14-slim
 WORKDIR /app
 
 # Install runtime dependencies only
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update &&     apt-get install -y --no-install-recommends     libpq5     curl     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python dependencies from builder
-COPY --from=builder /root/.local /root/.local
+# Create non-root user first
+RUN useradd -m -u 1000 appuser
+
+# Copy Python dependencies from builder to appuser home
+COPY --from=builder /root/.local /home/appuser/.local
 
 # Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Copy application code
 COPY . .
 
-# Create non-root user for security
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+# Fix ownership
+RUN chown -R appuser:appuser /app /home/appuser/.local
 
 # Switch to non-root user
 USER appuser
@@ -50,8 +45,7 @@ USER appuser
 EXPOSE 8000
 
 # Set environment variables for production
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1     PYTHONDONTWRITEBYTECODE=1
 
 # Run uvicorn with production settings
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

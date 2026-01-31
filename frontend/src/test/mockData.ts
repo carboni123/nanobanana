@@ -27,17 +27,13 @@ import type {
 export const mockUser: UserResponse = {
   id: 'user-123',
   email: 'test@example.com',
-  is_active: true,
   created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-01T00:00:00Z',
 };
 
 export const mockUser2: UserResponse = {
   id: 'user-456',
   email: 'another@example.com',
-  is_active: true,
   created_at: '2024-01-15T00:00:00Z',
-  updated_at: '2024-01-15T00:00:00Z',
 };
 
 // ============================================================================
@@ -68,7 +64,6 @@ export const mockApiKey: KeyResponse = {
   is_active: true,
   created_at: '2024-01-05T00:00:00Z',
   last_used_at: '2024-01-10T12:00:00Z',
-  user_id: 'user-123',
 };
 
 export const mockApiKey2: KeyResponse = {
@@ -78,7 +73,6 @@ export const mockApiKey2: KeyResponse = {
   is_active: true,
   created_at: '2024-01-06T00:00:00Z',
   last_used_at: null,
-  user_id: 'user-123',
 };
 
 export const mockRevokedApiKey: KeyResponse = {
@@ -88,7 +82,6 @@ export const mockRevokedApiKey: KeyResponse = {
   is_active: false,
   created_at: '2023-12-01T00:00:00Z',
   last_used_at: '2023-12-15T00:00:00Z',
-  user_id: 'user-123',
 };
 
 export const mockCreateKeyResponse: CreateKeyResponse = {
@@ -96,19 +89,15 @@ export const mockCreateKeyResponse: CreateKeyResponse = {
   key: 'nb_test_1234567890abcdef',
   name: 'New Test Key',
   prefix: 'nb_test',
-  is_active: true,
   created_at: '2024-01-20T00:00:00Z',
-  user_id: 'user-123',
 };
 
 export const mockKeyListResponse: KeyListResponse = {
   keys: [mockApiKey, mockApiKey2, mockRevokedApiKey],
-  total: 3,
 };
 
 export const mockEmptyKeyListResponse: KeyListResponse = {
   keys: [],
-  total: 0,
 };
 
 // ============================================================================
@@ -116,77 +105,67 @@ export const mockEmptyKeyListResponse: KeyListResponse = {
 // ============================================================================
 
 export const mockUsageSummary: UsageSummaryResponse = {
-  total_requests: 15420,
-  total_tokens: 1245678,
-  total_cost: 45.67,
-  period_start: '2024-01-01T00:00:00Z',
-  period_end: '2024-01-31T23:59:59Z',
+  total_images: 15420,
+  total_keys: 5,
   active_keys: 2,
+  top_keys: [
+    {
+      key_id: 'key-123',
+      key_name: 'Test API Key',
+      key_prefix: 'nb_test',
+      image_count: 8500,
+    },
+    {
+      key_id: 'key-456',
+      key_name: 'Production Key',
+      key_prefix: 'nb_prod',
+      image_count: 6920,
+    },
+  ],
 };
 
 export const mockDailyUsage: DailyUsageResponse = {
-  data: [
+  days: [
     {
-      date: '2024-01-25',
-      requests: 120,
-      tokens: 9500,
-      cost: 0.35,
+      usage_date: '2024-01-25',
+      image_count: 120,
     },
     {
-      date: '2024-01-26',
-      requests: 150,
-      tokens: 12000,
-      cost: 0.44,
+      usage_date: '2024-01-26',
+      image_count: 150,
     },
     {
-      date: '2024-01-27',
-      requests: 95,
-      tokens: 7800,
-      cost: 0.29,
+      usage_date: '2024-01-27',
+      image_count: 95,
     },
     {
-      date: '2024-01-28',
-      requests: 180,
-      tokens: 14500,
-      cost: 0.53,
+      usage_date: '2024-01-28',
+      image_count: 180,
     },
     {
-      date: '2024-01-29',
-      requests: 200,
-      tokens: 16000,
-      cost: 0.59,
+      usage_date: '2024-01-29',
+      image_count: 200,
     },
   ],
-  period_start: '2024-01-25T00:00:00Z',
-  period_end: '2024-01-29T23:59:59Z',
 };
 
 export const mockKeyUsage: KeyUsageResponse = {
   key_id: 'key-123',
   key_name: 'Test API Key',
-  total_requests: 5420,
-  total_tokens: 445678,
-  total_cost: 16.45,
-  first_used_at: '2024-01-05T10:00:00Z',
-  last_used_at: '2024-01-10T12:00:00Z',
-  daily_breakdown: [
+  key_prefix: 'nb_test',
+  total_images: 5420,
+  daily_usage: [
     {
-      date: '2024-01-08',
-      requests: 50,
-      tokens: 4000,
-      cost: 0.15,
+      usage_date: '2024-01-08',
+      image_count: 50,
     },
     {
-      date: '2024-01-09',
-      requests: 60,
-      tokens: 4800,
-      cost: 0.18,
+      usage_date: '2024-01-09',
+      image_count: 60,
     },
     {
-      date: '2024-01-10',
-      requests: 45,
-      tokens: 3600,
-      cost: 0.13,
+      usage_date: '2024-01-10',
+      image_count: 45,
     },
   ],
 };
