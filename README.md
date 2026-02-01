@@ -60,6 +60,8 @@ SECRET_KEY=your-secret-key-change-in-production
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
 ```
 
+**Google Gemini API Setup**: See [backend/GOOGLE_API_SETUP.md](backend/GOOGLE_API_SETUP.md) for detailed instructions on obtaining and configuring your Google Gemini API key.
+
 ### Database Setup
 
 ```bash
