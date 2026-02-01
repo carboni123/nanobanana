@@ -29,11 +29,12 @@ Google's Gemini API offers powerful image generation (Imagen), but:
 ## MVP Features (v0.1)
 
 ### Core
-- [ ] User registration (email/password)
-- [ ] API key generation and management
-- [ ] Image generation endpoint (`POST /v1/generate`)
-- [ ] Usage tracking per API key
-- [ ] Rate limiting
+- [x] User registration (email/password)
+- [x] API key generation and management
+- [x] Image generation endpoint (`POST /v1/generate`)
+- [x] Usage tracking per API key
+- [x] Rate limiting
+- [x] Error handling for Gemini API (rate limits, quota exceeded, server errors)
 
 ### API Specification
 

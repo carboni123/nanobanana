@@ -18,6 +18,7 @@ NanoBanana wraps all of this into a simple REST API with straightforward API key
 - **Flexible Image Storage**: Optional Cloudflare R2 storage for persistent URLs, with base64 fallback
 - **Usage Tracking**: Per-key, per-day granularity for billing and analytics
 - **Rate Limiting**: Redis-based sliding window rate limiting
+- **Robust Error Handling**: Comprehensive handling of rate limits, quota exceeded, and API errors
 - **Async Architecture**: Built on FastAPI with async PostgreSQL for high performance
 
 ## Quick Start
@@ -129,6 +130,28 @@ Content-Type: application/json
 }
 ```
 
+**Error Responses:**
+
+| Status Code | Description | When It Occurs |
+|-------------|-------------|----------------|
+| `400` | Bad Request | Invalid prompt, size, or style parameters |
+| `401` | Unauthorized | Invalid or missing API key |
+| `429` | Too Many Requests | Rate limit exceeded or quota exhausted |
+| `502` | Bad Gateway | Upstream Gemini API error or service unavailable |
+| `503` | Service Unavailable | Image generation service not configured |
+
+**Example Error Response:**
+```json
+{
+  "detail": "Rate limit exceeded. Please try again later. Details: Quota exceeded"
+}
+```
+
+**Rate Limiting:**
+- When you receive a `429` error, implement exponential backoff before retrying
+- Rate limits are enforced per API key
+- Check your usage dashboard to monitor quota consumption
+
 ### Authentication Endpoints
 
 ```http
@@ -143,6 +166,78 @@ POST   /v1/keys           # Create a new API key
 GET    /v1/keys           # List all API keys
 DELETE /v1/keys/{key_id}  # Revoke an API key
 ```
+
+## Error Handling
+
+NanoBanana implements comprehensive error handling for all Gemini API scenarios:
+
+### Error Types
+
+| Error Category | HTTP Status | Description | Recommended Action |
+|----------------|-------------|-------------|-------------------|
+| **Rate Limit** | 429 | API rate limit exceeded or quota exhausted | Implement exponential backoff, retry after delay |
+| **Client Error** | 400 | Invalid request parameters (prompt, size, style) | Fix request parameters and retry |
+| **Authentication** | 401 | Invalid or revoked API key | Check API key validity |
+| **Server Error** | 502 | Gemini API temporarily unavailable | Retry with exponential backoff |
+| **Not Configured** | 503 | Service not properly configured | Contact support |
+
+### Retry Strategy
+
+When encountering errors, implement the following retry strategy:
+
+```python
+import time
+import requests
+
+def generate_with_retry(api_key, prompt, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                "https://api.nanobanana.ai/v1/generate",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={"prompt": prompt}
+            )
+
+            if response.status_code == 429:
+                # Rate limit - exponential backoff
+                wait_time = (2 ** attempt) * 1  # 1s, 2s, 4s
+                time.sleep(wait_time)
+                continue
+            elif response.status_code == 502:
+                # Server error - retry with backoff
+                wait_time = (2 ** attempt) * 2  # 2s, 4s, 8s
+                time.sleep(wait_time)
+                continue
+            elif response.status_code >= 400:
+                # Client error - don't retry
+                response.raise_for_status()
+
+            return response.json()
+
+        except requests.exceptions.RequestException as e:
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(2 ** attempt)
+
+    raise Exception("Max retries exceeded")
+```
+
+### Error Response Format
+
+All errors return a consistent JSON format:
+
+```json
+{
+  "detail": "Human-readable error message with context"
+}
+```
+
+### Logging
+
+All API errors are logged server-side with appropriate severity:
+- **Warning**: Rate limit errors (transient, expected)
+- **Error**: API errors (requires investigation)
+- **Exception**: Unexpected errors (full stack trace captured)
 
 ## Project Structure
 
