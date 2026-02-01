@@ -117,7 +117,7 @@ Content-Type: application/json
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `prompt` | string | Yes | Description of the image to generate |
-| `size` | string | No | Image dimensions (default: `1024x1024`) |
+| `size` | string | No | Image dimensions (default: `1024x1024`). Supported: `1024x1024` (1:1), `1280x896` (4:3 landscape), `896x1280` (3:4 portrait), `1408x768` (16:9 landscape), `768x1408` (9:16 portrait) |
 | `style` | string | No | `natural` or `artistic` (default: `natural`) |
 
 **Response:**

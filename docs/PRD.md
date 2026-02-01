@@ -45,7 +45,7 @@ Headers:
 Body:
   {
     "prompt": "A cute banana wearing sunglasses",
-    "size": "1024x1024",  // optional
+    "size": "1024x1024",  // optional - supported: 1024x1024, 1280x896, 896x1280, 1408x768, 768x1408
     "style": "natural"     // optional: natural, artistic
   }
 Response:
