@@ -1,6 +1,7 @@
 """Business logic for image generation."""
 
 import base64
+import logging
 from datetime import date
 
 from fastapi import HTTPException, status
@@ -9,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models.usage import Usage
+
+logger = logging.getLogger(__name__)
 
 
 async def generate_image(prompt: str, size: str, style: str) -> bytes:
@@ -83,9 +86,10 @@ def upload_to_r2(image_bytes: bytes, filename: str) -> str | None:
         filename: Filename for the image
 
     Returns:
-        str | None: Public URL if upload successful, None if R2 not configured
+        str | None: Public URL if upload successful, None if R2 not configured or upload fails
     """
     if not settings.r2_access_key or not settings.r2_secret_key or not settings.r2_endpoint:
+        logger.info("R2 storage not configured, will use base64 fallback")
         return None
 
     try:
@@ -110,9 +114,11 @@ def upload_to_r2(image_bytes: bytes, filename: str) -> str | None:
         # R2 public URL format: https://<bucket>.<account-id>.r2.dev/<key>
         # Or custom domain if configured
         url = f"{settings.r2_endpoint.replace('.r2.cloudflarestorage.com', '.r2.dev')}/{key}"
+        logger.info(f"Image successfully uploaded to R2: {key}")
         return url
 
-    except Exception:
+    except Exception as e:
+        logger.warning(f"R2 upload failed, falling back to base64: {e}")
         return None
 
 

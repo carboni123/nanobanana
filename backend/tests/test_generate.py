@@ -172,6 +172,20 @@ class TestGenerateValidation:
 
         assert response.status_code == 422
 
+    @pytest.mark.asyncio
+    async def test_generate_invalid_size(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generating with invalid size returns 422."""
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": "A cute banana", "size": "invalid"},
+            headers=api_key_headers,
+        )
+
+        assert response.status_code == 422
+        assert "size" in response.json()["detail"][0]["loc"]
+
 
 class TestGenerateUsage:
     """Tests for usage tracking."""
