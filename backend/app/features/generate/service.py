@@ -37,6 +37,7 @@ async def generate_image(prompt: str, size: str, style: str) -> bytes:
 
     try:
         from google import genai
+        from google.genai import errors
 
         client = genai.Client(api_key=settings.google_api_key)
 
@@ -70,8 +71,47 @@ async def generate_image(prompt: str, size: str, style: str) -> bytes:
         return bytes(generated_image.image.image_bytes)
 
     except HTTPException:
+        # Re-raise our own HTTPExceptions
         raise
+    except errors.ClientError as e:
+        # Handle 4xx client errors from Gemini API
+        error_message = getattr(e, "message", str(e))
+
+        # Check if this is a rate limit error (429)
+        # The error object might have status or code attributes
+        error_str = str(e).lower()
+        if "429" in error_str or "quota" in error_str or "rate limit" in error_str:
+            logger.warning(f"Gemini API rate limit exceeded: {error_message}")
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Rate limit exceeded. Please try again later. Details: {error_message}",
+            )
+        else:
+            # Other client errors (400, 401, 403, etc.)
+            logger.error(f"Gemini API client error: {error_message}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid request to image generation service: {error_message}",
+            )
+    except errors.ServerError as e:
+        # Handle 5xx server errors from Gemini API
+        error_message = getattr(e, "message", str(e))
+        logger.error(f"Gemini API server error: {error_message}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Image generation service temporarily unavailable: {error_message}",
+        )
+    except errors.APIError as e:
+        # Handle any other Gemini API errors
+        error_message = getattr(e, "message", str(e))
+        logger.error(f"Gemini API error: {error_message}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Image generation failed: {error_message}",
+        )
     except Exception as e:
+        # Catch-all for unexpected errors
+        logger.exception(f"Unexpected error during image generation: {e}")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Image generation failed: {str(e)}",

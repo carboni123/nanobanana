@@ -259,3 +259,192 @@ class TestGenerateServiceErrors:
 
         assert response.status_code == 503
         assert "not configured" in response.json()["detail"].lower()
+
+
+class TestGenerateGeminiAPIErrors:
+    """Tests for Gemini API error handling."""
+
+    @pytest.mark.asyncio
+    async def test_generate_rate_limit_error(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Gemini API rate limit (429) is properly handled."""
+        from google.genai import errors
+
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+
+            # Create a mock rate limit error
+            rate_limit_error = errors.ClientError(429, {"error": {"message": "Quota exceeded"}})
+
+            with patch("google.genai.Client") as mock_client_class:
+                mock_client = MagicMock()
+                mock_client.models.generate_images.side_effect = rate_limit_error
+                mock_client_class.return_value = mock_client
+
+                response = await client.post(
+                    "/v1/generate",
+                    json={"prompt": "A banana"},
+                    headers=api_key_headers,
+                )
+
+        assert response.status_code == 429
+        assert "rate limit" in response.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_generate_quota_exceeded_error(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Gemini API quota exceeded error is detected and returns 429."""
+        from google.genai import errors
+
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+
+            # Create an error with "quota" in the message
+            quota_error = errors.ClientError(400, {"error": {"message": "Resource exhausted: quota exceeded"}})
+
+            with patch("google.genai.Client") as mock_client_class:
+                mock_client = MagicMock()
+                mock_client.models.generate_images.side_effect = quota_error
+                mock_client_class.return_value = mock_client
+
+                response = await client.post(
+                    "/v1/generate",
+                    json={"prompt": "A banana"},
+                    headers=api_key_headers,
+                )
+
+        assert response.status_code == 429
+        assert "rate limit" in response.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_generate_client_error_400(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Gemini API client errors (400) are properly handled."""
+        from google.genai import errors
+
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+
+            # Create a client error
+            client_error = errors.ClientError(400, {"error": {"message": "Invalid prompt format"}})
+
+            with patch("google.genai.Client") as mock_client_class:
+                mock_client = MagicMock()
+                mock_client.models.generate_images.side_effect = client_error
+                mock_client_class.return_value = mock_client
+
+                response = await client.post(
+                    "/v1/generate",
+                    json={"prompt": "A banana"},
+                    headers=api_key_headers,
+                )
+
+        assert response.status_code == 400
+        assert "invalid request" in response.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_generate_server_error_500(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Gemini API server errors (5xx) are properly handled."""
+        from google.genai import errors
+
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+
+            # Create a server error
+            server_error = errors.ServerError(500, {"error": {"message": "Internal server error"}})
+
+            with patch("google.genai.Client") as mock_client_class:
+                mock_client = MagicMock()
+                mock_client.models.generate_images.side_effect = server_error
+                mock_client_class.return_value = mock_client
+
+                response = await client.post(
+                    "/v1/generate",
+                    json={"prompt": "A banana"},
+                    headers=api_key_headers,
+                )
+
+        assert response.status_code == 502
+        assert "temporarily unavailable" in response.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_generate_server_error_503(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Gemini API server errors (503) are properly handled."""
+        from google.genai import errors
+
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+
+            # Create a 503 server error
+            server_error = errors.ServerError(503, {"error": {"message": "Service temporarily unavailable"}})
+
+            with patch("google.genai.Client") as mock_client_class:
+                mock_client = MagicMock()
+                mock_client.models.generate_images.side_effect = server_error
+                mock_client_class.return_value = mock_client
+
+                response = await client.post(
+                    "/v1/generate",
+                    json={"prompt": "A banana"},
+                    headers=api_key_headers,
+                )
+
+        assert response.status_code == 502
+        assert "temporarily unavailable" in response.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_generate_generic_api_error(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generic Gemini API errors are properly handled."""
+        from google.genai import errors
+
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+
+            # Create a generic API error
+            api_error = errors.APIError(418, {"error": {"message": "I'm a teapot"}})
+
+            with patch("google.genai.Client") as mock_client_class:
+                mock_client = MagicMock()
+                mock_client.models.generate_images.side_effect = api_error
+                mock_client_class.return_value = mock_client
+
+                response = await client.post(
+                    "/v1/generate",
+                    json={"prompt": "A banana"},
+                    headers=api_key_headers,
+                )
+
+        assert response.status_code == 502
+        assert "generation failed" in response.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_generate_unexpected_exception(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Unexpected exceptions during generation are handled gracefully."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+
+            with patch("google.genai.Client") as mock_client_class:
+                mock_client = MagicMock()
+                # Simulate an unexpected error (e.g., network timeout)
+                mock_client.models.generate_images.side_effect = ConnectionError("Network timeout")
+                mock_client_class.return_value = mock_client
+
+                response = await client.post(
+                    "/v1/generate",
+                    json={"prompt": "A banana"},
+                    headers=api_key_headers,
+                )
+
+        assert response.status_code == 502
+        assert "generation failed" in response.json()["detail"].lower()
