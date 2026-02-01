@@ -186,6 +186,179 @@ class TestGenerateValidation:
         assert response.status_code == 422
         assert "size" in response.json()["detail"][0]["loc"]
 
+    @pytest.mark.asyncio
+    async def test_generate_valid_size_1024x1024(
+        self, client: AsyncClient, api_key_headers: dict, mock_gemini_response
+    ) -> None:
+        """Generating with 1024x1024 size succeeds."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+            mock_settings.r2_access_key = ""
+            mock_settings.r2_secret_key = ""
+            mock_settings.r2_endpoint = ""
+
+            with patch.dict("sys.modules", {"google": MagicMock(), "google.genai": MagicMock()}):
+                with patch("google.genai.Client") as mock_client_class:
+                    mock_client = MagicMock()
+                    mock_client.models.generate_images.return_value = mock_gemini_response
+                    mock_client_class.return_value = mock_client
+
+                    response = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A cute banana", "size": "1024x1024"},
+                        headers=api_key_headers,
+                    )
+
+        assert response.status_code == 201
+
+    @pytest.mark.asyncio
+    async def test_generate_valid_size_1280x896(
+        self, client: AsyncClient, api_key_headers: dict, mock_gemini_response
+    ) -> None:
+        """Generating with 1280x896 (4:3 landscape) size succeeds."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+            mock_settings.r2_access_key = ""
+            mock_settings.r2_secret_key = ""
+            mock_settings.r2_endpoint = ""
+
+            with patch.dict("sys.modules", {"google": MagicMock(), "google.genai": MagicMock()}):
+                with patch("google.genai.Client") as mock_client_class:
+                    mock_client = MagicMock()
+                    mock_client.models.generate_images.return_value = mock_gemini_response
+                    mock_client_class.return_value = mock_client
+
+                    response = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A cute banana", "size": "1280x896"},
+                        headers=api_key_headers,
+                    )
+
+        assert response.status_code == 201
+
+    @pytest.mark.asyncio
+    async def test_generate_valid_size_896x1280(
+        self, client: AsyncClient, api_key_headers: dict, mock_gemini_response
+    ) -> None:
+        """Generating with 896x1280 (3:4 portrait) size succeeds."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+            mock_settings.r2_access_key = ""
+            mock_settings.r2_secret_key = ""
+            mock_settings.r2_endpoint = ""
+
+            with patch.dict("sys.modules", {"google": MagicMock(), "google.genai": MagicMock()}):
+                with patch("google.genai.Client") as mock_client_class:
+                    mock_client = MagicMock()
+                    mock_client.models.generate_images.return_value = mock_gemini_response
+                    mock_client_class.return_value = mock_client
+
+                    response = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A cute banana", "size": "896x1280"},
+                        headers=api_key_headers,
+                    )
+
+        assert response.status_code == 201
+
+    @pytest.mark.asyncio
+    async def test_generate_valid_size_1408x768(
+        self, client: AsyncClient, api_key_headers: dict, mock_gemini_response
+    ) -> None:
+        """Generating with 1408x768 (16:9 landscape) size succeeds."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+            mock_settings.r2_access_key = ""
+            mock_settings.r2_secret_key = ""
+            mock_settings.r2_endpoint = ""
+
+            with patch.dict("sys.modules", {"google": MagicMock(), "google.genai": MagicMock()}):
+                with patch("google.genai.Client") as mock_client_class:
+                    mock_client = MagicMock()
+                    mock_client.models.generate_images.return_value = mock_gemini_response
+                    mock_client_class.return_value = mock_client
+
+                    response = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A cute banana", "size": "1408x768"},
+                        headers=api_key_headers,
+                    )
+
+        assert response.status_code == 201
+
+    @pytest.mark.asyncio
+    async def test_generate_valid_size_768x1408(
+        self, client: AsyncClient, api_key_headers: dict, mock_gemini_response
+    ) -> None:
+        """Generating with 768x1408 (9:16 portrait) size succeeds."""
+        with patch("app.features.generate.service.settings") as mock_settings:
+            mock_settings.google_api_key = "fake-key"
+            mock_settings.r2_access_key = ""
+            mock_settings.r2_secret_key = ""
+            mock_settings.r2_endpoint = ""
+
+            with patch.dict("sys.modules", {"google": MagicMock(), "google.genai": MagicMock()}):
+                with patch("google.genai.Client") as mock_client_class:
+                    mock_client = MagicMock()
+                    mock_client.models.generate_images.return_value = mock_gemini_response
+                    mock_client_class.return_value = mock_client
+
+                    response = await client.post(
+                        "/v1/generate",
+                        json={"prompt": "A cute banana", "size": "768x1408"},
+                        headers=api_key_headers,
+                    )
+
+        assert response.status_code == 201
+
+    @pytest.mark.asyncio
+    async def test_generate_invalid_size_512x512(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generating with unsupported 512x512 size returns 422."""
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": "A cute banana", "size": "512x512"},
+            headers=api_key_headers,
+        )
+
+        assert response.status_code == 422
+        data = response.json()
+        assert "size" in data["detail"][0]["loc"]
+        assert "Size must be one of" in data["detail"][0]["msg"]
+
+    @pytest.mark.asyncio
+    async def test_generate_invalid_size_256x256(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generating with unsupported 256x256 size returns 422."""
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": "A cute banana", "size": "256x256"},
+            headers=api_key_headers,
+        )
+
+        assert response.status_code == 422
+        data = response.json()
+        assert "size" in data["detail"][0]["loc"]
+        assert "Size must be one of" in data["detail"][0]["msg"]
+
+    @pytest.mark.asyncio
+    async def test_generate_invalid_size_2048x2048(
+        self, client: AsyncClient, api_key_headers: dict
+    ) -> None:
+        """Generating with unsupported 2048x2048 size returns 422."""
+        response = await client.post(
+            "/v1/generate",
+            json={"prompt": "A cute banana", "size": "2048x2048"},
+            headers=api_key_headers,
+        )
+
+        assert response.status_code == 422
+        data = response.json()
+        assert "size" in data["detail"][0]["loc"]
+        assert "Size must be one of" in data["detail"][0]["msg"]
+
 
 class TestGenerateUsage:
     """Tests for usage tracking."""
