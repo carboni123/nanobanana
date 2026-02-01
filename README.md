@@ -15,7 +15,7 @@ NanoBanana wraps all of this into a simple REST API with straightforward API key
 ## Features
 
 - **Simple Authentication**: Bearer token API keys (no OAuth complexity)
-- **Persistent Images**: Images are stored on Cloudflare R2, not proxied from Google's expiring URLs
+- **Flexible Image Storage**: Optional Cloudflare R2 storage for persistent URLs, with base64 fallback
 - **Usage Tracking**: Per-key, per-day granularity for billing and analytics
 - **Rate Limiting**: Redis-based sliding window rate limiting
 - **Async Architecture**: Built on FastAPI with async PostgreSQL for high performance
@@ -61,6 +61,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES=10080
 ```
 
 **Google Gemini API Setup**: See [backend/GOOGLE_API_SETUP.md](backend/GOOGLE_API_SETUP.md) for detailed instructions on obtaining and configuring your Google Gemini API key.
+
+**R2 Storage Setup**: See [backend/docs/R2_STORAGE_CONFIGURATION.md](backend/docs/R2_STORAGE_CONFIGURATION.md) for R2 configuration instructions. Note: R2 is optional - the system will use base64 fallback if not configured.
 
 ### Database Setup
 
