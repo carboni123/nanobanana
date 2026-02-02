@@ -67,6 +67,19 @@ ACCESS_TOKEN_EXPIRE_MINUTES=10080
 
 ### Database Setup
 
+**Infrastructure**: NanoBanana uses a PostgreSQL 18 database running in Docker on the `shared_infra` network. See [docs/task1_postgres_verification.md](docs/task1_postgres_verification.md) for infrastructure verification and health check details.
+
+**Docker Compose Setup**:
+```bash
+# PostgreSQL is configured via docker-compose
+cd infra
+docker-compose -f docker-compose-postgres.yml up -d
+
+# Verify database is running
+docker ps --filter name=pg_server
+```
+
+**Run Migrations**:
 ```bash
 # Run migrations
 alembic upgrade head
@@ -261,8 +274,13 @@ nanobanana/
 │   ├── alembic/              # Database migrations
 │   └── requirements.txt      # Python dependencies
 ├── frontend/                 # Dashboard (v0.2)
+├── infra/                    # Infrastructure configuration
+│   ├── docker-compose-postgres.yml  # PostgreSQL setup
+│   └── create_network.sh     # Network initialization
 └── docs/
-    └── PRD.md               # Product requirements
+    ├── PRD.md               # Product requirements
+    ├── infrastructure-status.md      # Infrastructure assessment
+    └── task1_postgres_verification.md # Database health check
 ```
 
 ## Tech Stack
