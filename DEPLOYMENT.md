@@ -197,6 +197,28 @@ cat .env | grep -v '^#' | grep -v '^$'
 
 Ensure no placeholder values like `your_xxx_here` remain.
 
+**Automated Validation:**
+
+Run the environment validation script to ensure all required variables are properly configured:
+
+```bash
+./validate_env.sh
+```
+
+This will verify:
+- All required variables are set
+- Password lengths meet security requirements (32+ chars)
+- URL formats are valid
+- Token expiration is a valid number
+
+For docker-compose variable coverage check:
+
+```bash
+./verify_docker_compose_vars.sh
+```
+
+See [TASK3_ENV_VERIFICATION_REPORT.md](TASK3_ENV_VERIFICATION_REPORT.md) for detailed validation specifications.
+
 ---
 
 ## Building and Deploying
