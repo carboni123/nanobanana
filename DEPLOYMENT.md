@@ -39,6 +39,8 @@ Before starting, ensure your VPS has:
   - 20 GB disk space
   - Ubuntu 20.04+ or similar Linux distribution
 
+**Infrastructure Status**: See [docs/infrastructure-status.md](docs/infrastructure-status.md) for current Raspberry Pi production environment verification (Docker 29.2.0, 4-core ARM, 3.7GB RAM, verified and ready for deployment).
+
 - **Network Access:**
   - Port 80 open for HTTP traffic (or configured in firewall)
   - Port 8000 for backend API (optional, internal only if using Cloudflare Tunnel)

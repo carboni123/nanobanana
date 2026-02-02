@@ -83,7 +83,9 @@ Response:
 - **Database**: PostgreSQL
 - **Cache**: Redis (rate limiting)
 - **Storage**: Cloudflare R2 (generated images)
-- **Deployment**: Railway / Fly.io
+- **Deployment**: Raspberry Pi 4 (self-hosted) / Railway / Fly.io
+
+**Infrastructure Status**: See [infrastructure-status.md](infrastructure-status.md) for production environment verification and system capacity assessment.
 
 ## Business Model
 
