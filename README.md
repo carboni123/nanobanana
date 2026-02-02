@@ -61,9 +61,23 @@ SECRET_KEY=your-secret-key-change-in-production
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
 ```
 
-**Google Gemini API Setup**: See [backend/GOOGLE_API_SETUP.md](backend/GOOGLE_API_SETUP.md) for detailed instructions on obtaining and configuring your Google Gemini API key.
+**⚠️ API Credentials Required**: Before running NanoBanana, you must configure API credentials:
+- **Google Gemini API Key** (REQUIRED) - Image generation will not work without this
+- **Cloudflare R2 Storage** (OPTIONAL) - System uses base64 fallback if not configured
 
-**R2 Storage Setup**: See [backend/docs/R2_STORAGE_CONFIGURATION.md](backend/docs/R2_STORAGE_CONFIGURATION.md) for R2 configuration instructions. Note: R2 is optional - the system will use base64 fallback if not configured.
+See [docs/API_CREDENTIALS_REQUIREMENTS.md](docs/API_CREDENTIALS_REQUIREMENTS.md) for:
+- Detailed setup instructions for both credentials
+- Step-by-step guides for obtaining API keys
+- Security best practices
+- Troubleshooting guides
+- Quick verification scripts
+
+Quick verification:
+```bash
+cd backend && source .venv/bin/activate
+python verify_gemini_api.py  # Check Google Gemini (REQUIRED)
+python verify_r2_config.py    # Check R2 storage (OPTIONAL)
+```
 
 ### Database Setup
 
@@ -278,9 +292,11 @@ nanobanana/
 │   ├── docker-compose-postgres.yml  # PostgreSQL setup
 │   └── create_network.sh     # Network initialization
 └── docs/
-    ├── PRD.md               # Product requirements
-    ├── infrastructure-status.md      # Infrastructure assessment
-    └── task1_postgres_verification.md # Database health check
+    ├── PRD.md                           # Product requirements
+    ├── infrastructure-status.md         # Infrastructure assessment
+    ├── task1_postgres_verification.md   # Database health check
+    ├── API_CREDENTIALS_REQUIREMENTS.md  # API credentials setup (CRITICAL)
+    └── CREDENTIALS_CHECKLIST.md         # Quick setup checklist
 ```
 
 ## Tech Stack

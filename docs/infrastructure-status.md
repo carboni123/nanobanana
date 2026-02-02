@@ -118,7 +118,30 @@
   - Network: Connected to shared_infra
   - Schema: Initialized with application tables
   - Status: Ready for backend service integration
+- ✅ **Task 4**: API Credentials Documentation - [View Requirements](API_CREDENTIALS_REQUIREMENTS.md)
+  - Google Gemini API: Missing (REQUIRED)
+  - Cloudflare R2: Missing (OPTIONAL - base64 fallback works)
+  - Verification scripts: Available in backend/
+  - Status: Documented and ready for configuration
+
+## API Credentials Status
+
+**Critical**: Application requires Google Gemini API key configuration before image generation will work.
+
+See [API_CREDENTIALS_REQUIREMENTS.md](API_CREDENTIALS_REQUIREMENTS.md) for:
+- Step-by-step setup instructions
+- Security best practices
+- Troubleshooting guides
+- Verification procedures
+
+Quick verification:
+```bash
+cd /home/pi/nanobanana/backend
+source .venv/bin/activate
+python verify_gemini_api.py  # Check Google Gemini API
+python verify_r2_config.py    # Check Cloudflare R2 (optional)
+```
 
 ---
 *Generated as part of Sprint Task 2/5: Infrastructure Assessment*
-*Updated: 2026-02-02 with Task 1 verification results*
+*Updated: 2026-02-02 with Task 1 and Task 4 verification results*

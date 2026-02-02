@@ -84,8 +84,11 @@ Response:
 - **Cache**: Redis (rate limiting)
 - **Storage**: Cloudflare R2 (generated images)
 - **Deployment**: Raspberry Pi 4 (self-hosted) / Railway / Fly.io
+- **AI Provider**: Google Gemini API (Imagen 3.0)
 
 **Infrastructure Status**: See [infrastructure-status.md](infrastructure-status.md) for production environment verification and system capacity assessment.
+
+**API Credentials**: See [API_CREDENTIALS_REQUIREMENTS.md](API_CREDENTIALS_REQUIREMENTS.md) for required credentials setup and configuration.
 
 ## Business Model
 
@@ -122,6 +125,12 @@ Response:
 1. How do we handle Google API outages? (Queue + retry?)
 2. Image storage: CDN cache duration? Permanent storage?
 3. Content moderation: Use Google's built-in or add our own layer?
+
+## Resolved Questions
+
+1. **API Credentials Setup**: Documented in [API_CREDENTIALS_REQUIREMENTS.md](API_CREDENTIALS_REQUIREMENTS.md)
+   - Google Gemini API key (REQUIRED) - Blocks core functionality if missing
+   - Cloudflare R2 storage (OPTIONAL) - Base64 fallback available
 
 ## Out of Scope (v1)
 
