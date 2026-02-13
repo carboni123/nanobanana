@@ -18,9 +18,9 @@ from app.config import settings
 from app.database import Base
 
 # Import all models to ensure they're registered with Base.metadata
-from app.models.user import User
-from app.models.api_key import ApiKey
-from app.models.usage import Usage
+from app.models.user import User  # noqa: F401
+from app.models.api_key import ApiKey  # noqa: F401
+from app.models.usage import Usage  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
