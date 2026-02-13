@@ -8,6 +8,7 @@ from app.features.generate.api import router as generate_router
 from app.features.health.api import router as health_router
 from app.features.hello.api import router as hello_router
 from app.features.usage.api import router as usage_router
+from app.features.version.api import router as version_router
 
 app = FastAPI(
     title="NanoBanana API",
@@ -33,3 +34,6 @@ app.include_router(generate_router, prefix="/v1", tags=["generate"])
 
 # Usage routes
 app.include_router(usage_router, prefix="/v1/usage", tags=["usage"])
+
+# Version routes
+app.include_router(version_router, tags=["version"])
