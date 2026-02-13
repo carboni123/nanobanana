@@ -8,10 +8,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import VERSION
 from app.database import get_db
-from app.features.health.schemas import HealthCheckResponse
+from app.features.health.schemas import HealthCheckResponse, SimpleHealthResponse
 from app.features.health.service import check_database_connectivity, get_uptime
 
 router = APIRouter()
+
+
+@router.get("/health")
+async def simple_health_check() -> SimpleHealthResponse:
+    """Simple health check endpoint.
+
+    Returns a lightweight status with the current server timestamp.
+    """
+    return SimpleHealthResponse(
+        status="ok",
+        timestamp=datetime.now(timezone.utc),
+    )
 
 
 @router.get("/api/v1/health", response_model=HealthCheckResponse)

@@ -5,6 +5,20 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
+class SimpleHealthResponse(BaseModel):
+    """Response schema for simple health check endpoint."""
+
+    status: str = Field(
+        ...,
+        description="Health status indicator",
+        examples=["ok"],
+    )
+    timestamp: datetime = Field(
+        ...,
+        description="Current server timestamp in ISO 8601 format",
+    )
+
+
 class HealthCheckResponse(BaseModel):
     """Response schema for health check endpoint.
 

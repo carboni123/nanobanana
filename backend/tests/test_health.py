@@ -10,6 +10,43 @@ from httpx import AsyncClient
 from app import VERSION
 
 
+class TestSimpleHealthEndpoint:
+    """Tests for GET /health."""
+
+    @pytest.mark.asyncio
+    async def test_simple_health_returns_200(self, client: AsyncClient) -> None:
+        """Test that GET /health returns 200 status code."""
+        response = await client.get("/health")
+        assert response.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_simple_health_returns_status_ok(self, client: AsyncClient) -> None:
+        """Test that GET /health returns status 'ok'."""
+        response = await client.get("/health")
+        data = response.json()
+        assert data["status"] == "ok"
+
+    @pytest.mark.asyncio
+    async def test_simple_health_returns_valid_timestamp(self, client: AsyncClient) -> None:
+        """Test that GET /health returns a valid ISO 8601 timestamp."""
+        response = await client.get("/health")
+        data = response.json()
+        assert "timestamp" in data
+        # Verify it's a valid ISO 8601 timestamp
+        parsed = datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00"))
+        assert parsed is not None
+
+    @pytest.mark.asyncio
+    async def test_simple_health_payload_shape(self, client: AsyncClient) -> None:
+        """Test that GET /health returns the expected payload shape."""
+        response = await client.get("/health")
+        assert response.status_code == 200
+        data = response.json()
+        assert set(data.keys()) == {"status", "timestamp"}
+        assert data["status"] == "ok"
+        assert isinstance(data["timestamp"], str)
+
+
 class TestHealthEndpoint:
     """Tests for GET /api/v1/health."""
 
