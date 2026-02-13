@@ -125,6 +125,20 @@ GET /health
 }
 ```
 
+### Version
+
+```http
+GET /version
+```
+
+**Response:**
+```json
+{
+  "version": "1.0.0",
+  "name": "NanoBanana"
+}
+```
+
 ### Generate Image
 
 ```http
@@ -369,6 +383,7 @@ pytest tests/
 
 ### v0.1 (MVP)
 - [x] Database models
+- [x] Version endpoint
 - [ ] User registration and login
 - [ ] API key generation
 - [ ] Image generation endpoint
