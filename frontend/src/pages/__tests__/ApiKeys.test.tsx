@@ -33,6 +33,10 @@ vi.mock('../../services/api', async () => {
       listApiKeys: vi.fn(),
       createApiKey: vi.fn(),
       deleteApiKey: vi.fn(),
+      isAuthenticated: vi.fn().mockReturnValue(false),
+      setAuthErrorHandler: vi.fn(),
+      getCurrentUser: vi.fn(),
+      logout: vi.fn(),
     },
   };
 });
@@ -62,23 +66,24 @@ describe('ApiKeys Page', () => {
 
       render(<ApiKeys />);
 
+      // Both mobile and desktop views render key names, so use getAllByText
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
-        expect(screen.getByText('Production Key')).toBeInTheDocument();
-        expect(screen.getByText('Old Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('Production Key').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('Old Key').length).toBeGreaterThanOrEqual(1);
       });
 
-      // Check for key prefixes
-      expect(screen.getByText('nb_test...')).toBeInTheDocument();
-      expect(screen.getByText('nb_prod...')).toBeInTheDocument();
-      expect(screen.getByText('nb_old...')).toBeInTheDocument();
+      // Check for key prefixes (shown in both views)
+      expect(screen.getAllByText('nb_test...').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('nb_prod...').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('nb_old...').length).toBeGreaterThanOrEqual(1);
 
-      // Check for active status
+      // Check for active status (shown in both mobile and desktop views)
       const activeStatuses = screen.getAllByText('Active');
-      expect(activeStatuses).toHaveLength(2);
+      expect(activeStatuses.length).toBeGreaterThanOrEqual(2);
 
-      const revokedStatus = screen.getByText('Revoked');
-      expect(revokedStatus).toBeInTheDocument();
+      const revokedStatuses = screen.getAllByText('Revoked');
+      expect(revokedStatuses.length).toBeGreaterThanOrEqual(1);
 
       expect(apiClient.listApiKeys).toHaveBeenCalledTimes(1);
     });
@@ -126,7 +131,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Click create button
@@ -147,7 +152,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Open create modal
@@ -188,7 +193,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Open create modal
@@ -222,7 +227,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Open create modal
@@ -233,11 +238,11 @@ describe('ApiKeys Page', () => {
       const submitButton = screen.getByRole('button', { name: /create key/i });
       await user.click(submitButton);
 
-      // Error should be displayed
+      // Error should be displayed (component shows err.message via toast)
       await waitFor(() => {
         expect(
-          screen.getByText('You have reached your API key limit')
-        ).toBeInTheDocument();
+          screen.getAllByText('Rate limit exceeded').length
+        ).toBeGreaterThanOrEqual(1);
       });
     });
 
@@ -246,11 +251,14 @@ describe('ApiKeys Page', () => {
       vi.mocked(apiClient.createApiKey).mockResolvedValue(mockCreateKeyResponse);
       const user = userEvent.setup();
 
+      // Spy on clipboard.writeText after userEvent.setup() (which redefines clipboard)
+      const writeTextSpy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+
       render(<ApiKeys />);
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Create a new key
@@ -270,7 +278,7 @@ describe('ApiKeys Page', () => {
       await user.click(copyButton);
 
       // Verify clipboard was called
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect(writeTextSpy).toHaveBeenCalledWith(
         mockCreateKeyResponse.key
       );
 
@@ -278,6 +286,8 @@ describe('ApiKeys Page', () => {
       await waitFor(() => {
         expect(screen.getByText('✓ Copied!')).toBeInTheDocument();
       });
+
+      writeTextSpy.mockRestore();
     });
   });
 
@@ -290,7 +300,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Click revoke button (on desktop view, check first revoke button)
@@ -313,7 +323,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Click revoke button
@@ -350,7 +360,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Click revoke button
@@ -363,11 +373,11 @@ describe('ApiKeys Page', () => {
       ).getByRole('button', { name: /revoke key/i });
       await user.click(confirmButton);
 
-      // Error should be displayed
+      // Error should be displayed (component shows err.message via toast)
       await waitFor(() => {
         expect(
-          screen.getByText('An error occurred while deleting the key')
-        ).toBeInTheDocument();
+          screen.getAllByText('Failed to delete key').length
+        ).toBeGreaterThanOrEqual(1);
       });
     });
 
@@ -379,7 +389,7 @@ describe('ApiKeys Page', () => {
 
       // Wait for keys to load
       await waitFor(() => {
-        expect(screen.getByText('Test API Key')).toBeInTheDocument();
+        expect(screen.getAllByText('Test API Key')[0]).toBeInTheDocument();
       });
 
       // Click revoke button

@@ -34,12 +34,14 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock navigator.clipboard (used for copy functionality)
+// configurable: true is needed so userEvent.setup() can redefine it
 Object.defineProperty(navigator, 'clipboard', {
   value: {
     writeText: vi.fn(() => Promise.resolve()),
     readText: vi.fn(() => Promise.resolve('')),
   },
   writable: true,
+  configurable: true,
 });
 
 // Suppress console errors in tests (optional, comment out if you want to see them)

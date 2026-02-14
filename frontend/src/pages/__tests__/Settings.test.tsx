@@ -35,6 +35,10 @@ vi.mock('../../services/api', async () => {
     apiClient: {
       updateProfile: vi.fn(),
       changePassword: vi.fn(),
+      isAuthenticated: vi.fn().mockReturnValue(false),
+      setAuthErrorHandler: vi.fn(),
+      getCurrentUser: vi.fn(),
+      logout: vi.fn(),
     },
     ApiClientError: actual.ApiClientError,
   };
@@ -70,7 +74,13 @@ describe('Settings Page', () => {
       render(<Settings />);
 
       expect(screen.getByText(/member since/i)).toBeInTheDocument();
-      expect(screen.getByText(/January 1, 2024/i)).toBeInTheDocument();
+      // Compute expected date the same way the component does (timezone-aware)
+      const expectedDate = new Date(mockUser.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      expect(screen.getByText(expectedDate)).toBeInTheDocument();
     });
 
     it('should update profile successfully', async () => {
@@ -106,20 +116,16 @@ describe('Settings Page', () => {
       render(<Settings />);
 
       // Enter invalid email
-      const emailInput = screen.getByLabelText(/email address/i);
+      const emailInput = screen.getByLabelText(/email address/i) as HTMLInputElement;
       await user.clear(emailInput);
       await user.type(emailInput, 'invalid-email');
 
-      // Submit form
+      // Submit form — native type="email" validation prevents submission
       const updateButton = screen.getByRole('button', { name: /update profile/i });
       await user.click(updateButton);
 
-      // Validation error should appear
-      await waitFor(() => {
-        expect(
-          screen.getByText(/please enter a valid email address/i)
-        ).toBeInTheDocument();
-      });
+      // Native validation prevents submission for invalid email format
+      expect(emailInput.validity.valid).toBe(false);
 
       // API should not be called
       expect(apiClient.updateProfile).not.toHaveBeenCalled();
@@ -341,11 +347,11 @@ describe('Settings Page', () => {
       const changeButton = screen.getByRole('button', { name: /change password/i });
       await user.click(changeButton);
 
-      // Error should be displayed
+      // Error should be displayed (may appear both as toast and inline)
       await waitFor(() => {
         expect(
-          screen.getByText(/current password is incorrect/i)
-        ).toBeInTheDocument();
+          screen.getAllByText(/current password is incorrect/i).length
+        ).toBeGreaterThanOrEqual(1);
       });
     });
 

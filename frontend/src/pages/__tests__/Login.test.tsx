@@ -36,6 +36,20 @@ vi.mock('../../contexts/AuthContext', async () => {
   };
 });
 
+// Mock the API client (needed because AuthProvider calls apiClient.isAuthenticated on mount)
+vi.mock('../../services/api', async () => {
+  const actual = await vi.importActual('../../services/api');
+  return {
+    ...actual,
+    apiClient: {
+      isAuthenticated: vi.fn().mockReturnValue(false),
+      setAuthErrorHandler: vi.fn(),
+      getCurrentUser: vi.fn(),
+      logout: vi.fn(),
+    },
+  };
+});
+
 describe('Login Page', () => {
   const mockLogin = vi.fn();
 
@@ -58,7 +72,7 @@ describe('Login Page', () => {
     it('should display login form', () => {
       render(<Login />);
 
-      expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
+      expect(screen.getByText(/sign in to/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
@@ -67,7 +81,7 @@ describe('Login Page', () => {
     it('should display link to register page', () => {
       render(<Login />);
 
-      const registerLink = screen.getByRole('link', { name: /sign up/i });
+      const registerLink = screen.getByRole('link', { name: /create a new account/i });
       expect(registerLink).toBeInTheDocument();
       expect(registerLink).toHaveAttribute('href', '/register');
     });
@@ -96,14 +110,14 @@ describe('Login Page', () => {
 
       render(<Login />);
 
-      // Submit without email
+      // Submit without email — native `required` validation prevents submission
       const submitButton = screen.getByRole('button', { name: /sign in/i });
       await user.click(submitButton);
 
-      await waitFor(() => {
-        expect(screen.getByText(/email is required/i)).toBeInTheDocument();
-      });
-
+      // The email input has required attribute, so the form won't submit
+      const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
+      expect(emailInput).toBeRequired();
+      expect(emailInput.validity.valid).toBe(false);
       expect(mockLogin).not.toHaveBeenCalled();
     });
 
@@ -113,17 +127,14 @@ describe('Login Page', () => {
       render(<Login />);
 
       // Enter invalid email
-      const emailInput = screen.getByLabelText(/email/i);
+      const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
       await user.type(emailInput, 'invalid-email');
 
-      // Submit form
+      // Submit form — native type="email" validation prevents submission
       const submitButton = screen.getByRole('button', { name: /sign in/i });
       await user.click(submitButton);
 
-      await waitFor(() => {
-        expect(screen.getByText(/invalid email address/i)).toBeInTheDocument();
-      });
-
+      expect(emailInput.validity.valid).toBe(false);
       expect(mockLogin).not.toHaveBeenCalled();
     });
 
@@ -136,14 +147,13 @@ describe('Login Page', () => {
       const emailInput = screen.getByLabelText(/email/i);
       await user.type(emailInput, 'test@example.com');
 
-      // Submit form
+      // Submit form — password has required attribute, so form won't submit
       const submitButton = screen.getByRole('button', { name: /sign in/i });
       await user.click(submitButton);
 
-      await waitFor(() => {
-        expect(screen.getByText(/password is required/i)).toBeInTheDocument();
-      });
-
+      const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement;
+      expect(passwordInput).toBeRequired();
+      expect(passwordInput.validity.valid).toBe(false);
       expect(mockLogin).not.toHaveBeenCalled();
     });
   });

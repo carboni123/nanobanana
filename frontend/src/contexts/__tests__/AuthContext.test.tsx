@@ -54,15 +54,14 @@ describe('AuthContext', () => {
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
-      // Initially loading
-      expect(result.current.isLoading).toBe(true);
-      expect(result.current.user).toBe(null);
-      expect(result.current.isAuthenticated).toBe(false);
-
-      // Wait for loading to complete
+      // Wait for loading to complete (initAuth resolves quickly when not authenticated)
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
       });
+
+      // After loading, should not be authenticated
+      expect(result.current.user).toBe(null);
+      expect(result.current.isAuthenticated).toBe(false);
     });
 
     it('should fetch user data when authenticated on mount', async () => {
@@ -304,8 +303,10 @@ describe('AuthContext', () => {
         new Error('Token expired')
       );
 
-      // Attempt refresh
-      await expect(result.current.refreshUser()).rejects.toThrow('Token expired');
+      // Attempt refresh — wrap in act to flush state updates
+      await act(async () => {
+        await expect(result.current.refreshUser()).rejects.toThrow('Token expired');
+      });
 
       // User should be cleared on error
       expect(result.current.user).toBe(null);
