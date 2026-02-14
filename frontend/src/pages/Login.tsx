@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { ApiClientError } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { PAGE_META, SITE_NAME } from '../constants/seo';
 
 interface FormErrors {
   email?: string;
@@ -10,6 +12,7 @@ interface FormErrors {
 }
 
 export default function Login() {
+  useDocumentMeta(PAGE_META.login);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
@@ -101,7 +104,7 @@ export default function Login() {
         {/* Header */}
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to NanoBanana
+            Sign in to {SITE_NAME}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}

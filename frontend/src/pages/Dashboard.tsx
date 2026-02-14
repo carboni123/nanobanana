@@ -15,6 +15,8 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '../services/api';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { PAGE_META, SITE_NAME } from '../constants/seo';
 
 interface DashboardStats {
   totalKeys: number;
@@ -24,6 +26,7 @@ interface DashboardStats {
 }
 
 export default function Dashboard() {
+  useDocumentMeta(PAGE_META.dashboard);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +73,7 @@ export default function Dashboard() {
       <div className="animate-in fade-in duration-300">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Dashboard</h1>
         <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-          Welcome to NanoBanana! Here's an overview of your API usage.
+          Welcome to {SITE_NAME}! Here's an overview of your API usage.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <LoadingSkeleton variant="stat" count={4} />
@@ -115,7 +118,7 @@ export default function Dashboard() {
       <div className="mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
-          Welcome to NanoBanana! Here's an overview of your API usage.
+          Welcome to {SITE_NAME}! Here's an overview of your API usage.
         </p>
       </div>
 
@@ -234,7 +237,7 @@ export default function Dashboard() {
           />
           <QuickActionCard
             title="API Documentation"
-            description="Learn how to integrate NanoBanana"
+            description={`Learn how to integrate ${SITE_NAME}`}
             icon="📖"
             href="/docs"
             external

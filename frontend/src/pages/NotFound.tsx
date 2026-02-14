@@ -11,8 +11,11 @@
  */
 
 import { Link, useNavigate } from 'react-router-dom';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { PAGE_META } from '../constants/seo';
 
 export default function NotFound() {
+  useDocumentMeta(PAGE_META.notFound);
   const navigate = useNavigate();
 
   return (

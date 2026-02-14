@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { ApiClientError } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { PAGE_META } from '../constants/seo';
 
 interface FormErrors {
   email?: string;
@@ -11,6 +13,7 @@ interface FormErrors {
 }
 
 export default function Register() {
+  useDocumentMeta(PAGE_META.register);
   const navigate = useNavigate();
   const { register, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');

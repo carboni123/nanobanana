@@ -15,8 +15,11 @@ import { apiClient } from '../services/api';
 import type { KeyResponse, CreateKeyResponse } from '../types/api';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { PAGE_META, SITE_NAME } from '../constants/seo';
 
 export default function ApiKeys() {
+  useDocumentMeta(PAGE_META.apiKeys);
   const [keys, setKeys] = useState<KeyResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -203,7 +206,7 @@ export default function ApiKeys() {
             </svg>
           }
           title="No API keys yet"
-          description="Get started by creating your first API key to access the NanoBanana API."
+          description={`Get started by creating your first API key to access the ${SITE_NAME} API.`}
           action={{
             label: "Create Your First Key",
             onClick: () => setIsCreateModalOpen(true)

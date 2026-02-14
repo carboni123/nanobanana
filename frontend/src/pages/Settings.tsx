@@ -16,6 +16,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient, ApiClientError } from '../services/api';
 import type { UpdateProfileRequest, ChangePasswordRequest } from '../types/api';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { PAGE_META } from '../constants/seo';
 
 interface ProfileFormData {
   email: string;
@@ -28,6 +30,7 @@ interface PasswordFormData {
 }
 
 export default function Settings() {
+  useDocumentMeta(PAGE_META.settings);
   const { user, refreshUser } = useAuth();
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);

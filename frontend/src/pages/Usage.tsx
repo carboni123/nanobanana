@@ -31,6 +31,8 @@ import type {
 } from '../types/api';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { PAGE_META } from '../constants/seo';
 
 type TimeRange = 7 | 30 | 90;
 type ChartType = 'line' | 'bar';
@@ -41,6 +43,7 @@ interface KeyUsageData {
 }
 
 export default function Usage() {
+  useDocumentMeta(PAGE_META.usage);
   // Data state
   const [summary, setSummary] = useState<UsageSummaryResponse | null>(null);
   const [dailyUsage, setDailyUsage] = useState<DailyUsageEntry[]>([]);
