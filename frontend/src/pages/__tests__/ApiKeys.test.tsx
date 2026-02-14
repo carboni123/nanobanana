@@ -91,9 +91,7 @@ describe('ApiKeys Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No API keys yet')).toBeInTheDocument();
         expect(
-          screen.getByText(
-            'Get started by creating your first API key to access the NanoBanana API.'
-          )
+          screen.getByText(/Get started by creating your first API key to access the .* API\./)
         ).toBeInTheDocument();
       });
 

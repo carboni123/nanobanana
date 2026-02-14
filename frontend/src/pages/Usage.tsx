@@ -210,7 +210,7 @@ export default function Usage() {
       </div>
 
       {/* Summary Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+      <section aria-label="Usage statistics" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <StatCard
           title="Total API Calls"
           value={summary.total_images}
@@ -302,10 +302,10 @@ export default function Usage() {
           iconColor="text-orange-600"
           subtitle={`last ${timeRange} days`}
         />
-      </div>
+      </section>
 
       {/* Daily Usage Chart */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6 sm:mb-8">
+      <section aria-label="Daily usage chart" className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
           <div className="min-w-0">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900">Daily Usage</h2>
@@ -450,10 +450,10 @@ export default function Usage() {
             <p className="text-sm sm:text-base text-center">No usage data available for the selected time range</p>
           </div>
         )}
-      </div>
+      </section>
 
       {/* Per-Key Breakdown Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <section aria-label="Usage by API key" className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900">Usage by API Key</h2>
           <p className="text-xs sm:text-sm text-gray-600 mt-1">Detailed breakdown of usage per key</p>
@@ -540,7 +540,7 @@ export default function Usage() {
             />
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
@@ -559,7 +559,7 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, bgColor, iconColor, subtitle }: StatCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+    <article className="bg-white rounded-lg shadow p-4 sm:p-6">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className={`${bgColor} ${iconColor} p-2.5 sm:p-3 rounded-lg`}>{icon}</div>
       </div>
@@ -568,6 +568,6 @@ function StatCard({ title, value, icon, bgColor, iconColor, subtitle }: StatCard
         <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
         {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
       </div>
-    </div>
+    </article>
   );
 }

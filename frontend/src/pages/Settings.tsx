@@ -163,7 +163,7 @@ export default function Settings() {
       {/* Settings Sections */}
       <div className="space-y-4 sm:space-y-6">
         {/* Profile Information Section */}
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+        <section aria-label="Profile information" className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="mb-4 sm:mb-6">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900">Profile Information</h2>
             <p className="mt-1 text-xs sm:text-sm text-gray-600">
@@ -258,10 +258,10 @@ export default function Settings() {
               </div>
             </div>
           </form>
-        </div>
+        </section>
 
         {/* Change Password Section */}
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+        <section aria-label="Change password" className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="mb-4 sm:mb-6">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900">Change Password</h2>
             <p className="mt-1 text-xs sm:text-sm text-gray-600">
@@ -406,7 +406,7 @@ export default function Settings() {
               </div>
             </div>
           </form>
-        </div>
+        </section>
 
         {/* Security Note */}
         <div className="bg-banana-50 border border-banana-200 rounded-lg p-4 sm:p-5">

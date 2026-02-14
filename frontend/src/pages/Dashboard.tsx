@@ -123,7 +123,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+      <section aria-label="API usage statistics" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Total API Keys */}
         <StatCard
           title="Total API Keys"
@@ -217,10 +217,10 @@ export default function Dashboard() {
           iconColor="text-purple-600"
           subtitle="API calls this month"
         />
-      </div>
+      </section>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+      <section aria-label="Quick actions" className="bg-white rounded-lg shadow p-4 sm:p-6">
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <QuickActionCard
@@ -243,7 +243,7 @@ export default function Dashboard() {
             external
           />
         </div>
-      </div>
+      </section>
     </div>
   );
 }
@@ -262,7 +262,7 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, bgColor, iconColor, subtitle }: StatCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+    <article className="bg-white rounded-lg shadow p-4 sm:p-6">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className={`${bgColor} ${iconColor} p-2.5 sm:p-3 rounded-lg`}>
           {icon}
@@ -273,7 +273,7 @@ function StatCard({ title, value, icon, bgColor, iconColor, subtitle }: StatCard
         <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
         {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
       </div>
-    </div>
+    </article>
   );
 }
 

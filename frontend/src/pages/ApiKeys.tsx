@@ -189,6 +189,7 @@ export default function ApiKeys() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">API Keys</h1>
+
         <button
           onClick={() => setIsCreateModalOpen(true)}
           className="px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition-colors font-medium text-sm sm:text-base min-h-[44px] touch-manipulation w-full sm:w-auto"
@@ -197,7 +198,8 @@ export default function ApiKeys() {
         </button>
       </div>
 
-      {/* Empty State */}
+      {/* API Keys List */}
+      <section aria-label="API keys list">
       {keys.length === 0 ? (
         <EmptyState
           icon={
@@ -218,7 +220,7 @@ export default function ApiKeys() {
           {/* Mobile Card View */}
           <div className="block sm:hidden divide-y divide-gray-200">
             {keys.map((key) => (
-              <div key={key.id} className="p-4 hover:bg-gray-50 transition-colors">
+              <article key={key.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0 mr-3">
                     <div className="text-sm font-medium text-gray-900 truncate mb-1">
@@ -253,7 +255,7 @@ export default function ApiKeys() {
                 >
                   {key.is_active ? 'Revoke' : 'Delete'}
                 </button>
-              </div>
+              </article>
             ))}
           </div>
 
@@ -328,6 +330,7 @@ export default function ApiKeys() {
           </div>
         </div>
       )}
+      </section>
 
       {/* Create Key Modal */}
       {isCreateModalOpen && (
