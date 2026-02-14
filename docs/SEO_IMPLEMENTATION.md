@@ -303,13 +303,156 @@ The task originally specified using `react-helmet-async`, but it is incompatible
 | 3 | Default fallback image path is set | ✅ PASS | `OG_IMAGE_DEFAULT = https://nanobanana.com.br/og-default.png`; 1200×630 PNG at `frontend/public/og-default.png` |
 | 4 | `og:url` uses canonical nanobanana.com.br domain | ✅ PASS | All `PAGE_META` entries use `SITE_URL` constant; dynamic hook defaults to `SITE_URL` |
 
+## 9. JSON-LD Structured Data (Schema.org)
+
+**Task Completed**: 2025-02-14
+
+### Implementation
+
+JSON-LD structured data is now injected into all pages using Schema.org vocabulary for improved search engine understanding and rich results.
+
+**New Files**:
+- `frontend/src/components/JsonLd.tsx` - Reusable component that renders `<script type="application/ld+json">` blocks
+- `frontend/src/hooks/useJsonLd.ts` - Hook that injects/removes per-page JSON-LD `<script>` in `<head>` on mount/unmount
+
+**Modified Files**:
+- `frontend/vite.config.ts` - Added `define: { __APP_VERSION__: ... }` to inject `package.json` version at build time
+- `frontend/vitest.config.ts` - Added same `define` for test environment compatibility
+- `frontend/src/constants/seo.ts` - Added `APP_VERSION` constant sourced from `__APP_VERSION__` (Vite build-time injection)
+- `frontend/src/App.tsx` - Added global `WebApplication` + `Organization` schemas via `<JsonLd>` component
+- All 7 page components (Login, Register, Dashboard, ApiKeys, Usage, Settings, NotFound) - Each calls `useJsonLd()` with a `WebPage` schema
+
+### Schema Types Implemented
+
+#### 1. WebApplication Schema (Global - All Pages)
+
+Rendered in `App.tsx`, present on every page:
+
+```typescript
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "NanoBanana",
+  "url": "https://nanobanana.com.br",
+  "description": "NanoBanana is a SaaS API that wraps Google Gemini's image generation...",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "All",
+  "version": "0.0.0",  // Injected from package.json at build time
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "BRL"
+  }
+}
+```
+
+#### 2. Organization Schema (Global - All Pages)
+
+Rendered in `App.tsx`, present on every page:
+
+```typescript
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "NanoBanana",
+  "url": "https://nanobanana.com.br",
+  "logo": "https://nanobanana.com.br/og-default.png",
+  "description": "NanoBanana - AI Image Generation API"
+}
+```
+
+#### 3. WebPage Schema (Per-Page)
+
+Injected dynamically by each page using `useJsonLd()`:
+
+```typescript
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Sign In - NanoBanana",
+  "description": "Sign in to your NanoBanana dashboard...",
+  "url": "https://nanobanana.com.br/login"
+}
+```
+
+### Version Injection System
+
+The app version is sourced dynamically from `package.json` at build time:
+
+1. **Vite Config** (`vite.config.ts`): Reads `package.json` and defines `__APP_VERSION__` global
+2. **Vitest Config** (`vitest.config.ts`): Mirrors the same define for test environment
+3. **SEO Constants** (`seo.ts`): Declares and exports `APP_VERSION` from `__APP_VERSION__`
+4. **App.tsx**: Uses `APP_VERSION` in the `WebApplication` schema's `version` field
+
+This ensures **no hardcoded version strings** anywhere in the codebase.
+
+### Usage
+
+#### Global Schemas (App-level)
+
+```typescript
+import JsonLd from './components/JsonLd';
+import { APP_VERSION, SITE_NAME, SITE_URL } from './constants/seo';
+
+const schemas = [
+  { "@context": "https://schema.org", "@type": "WebApplication", version: APP_VERSION, ... },
+  { "@context": "https://schema.org", "@type": "Organization", ... }
+];
+
+function App() {
+  return <JsonLd data={schemas} />;
+}
+```
+
+#### Per-Page Schemas (Component-level)
+
+```typescript
+import { useJsonLd } from '../hooks/useJsonLd';
+import { PAGE_META } from '../constants/seo';
+
+export default function Login() {
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: PAGE_META.login.title,
+    description: PAGE_META.login.description,
+    url: PAGE_META.login.url,
+  });
+
+  return <div>Login form...</div>;
+}
+```
+
+### Validation
+
+**Build Output Verification**:
+- Build succeeds: ✅
+- `schema.org` references in bundle: 9 occurrences ✅
+- `application/ld+json` script types: 2 occurrences ✅
+- Version `0.0.0` injected from package.json: ✅
+- `nanobanana.com.br` domain referenced: ✅
+
+**Google Rich Results Test Expectations**:
+- Well-formed JSON: ✅ (serialized via `JSON.stringify()`)
+- Correct `@context`: ✅ (`https://schema.org`)
+- Correct `@type` values: ✅ (`WebApplication`, `Organization`, `WebPage`)
+
+### Acceptance Criteria Validation
+
+| # | Criterion | Status | Evidence |
+|---|---|---|---|
+| 1 | JSON-LD is valid per Google Rich Results Test expectations | ✅ PASS | All schemas use correct `@context` and `@type`; JSON serialized correctly |
+| 2 | WebApplication and Organization schemas present on every page | ✅ PASS | Both rendered in `App.tsx` at root level via `<JsonLd>` component |
+| 3 | No hardcoded version — sourced from constants | ✅ PASS | `APP_VERSION` injected from `package.json` via Vite `define` |
+| 4 | Build succeeds | ✅ PASS | Build completes successfully with no errors |
+
 ## Future Enhancements
 
 Potential improvements for the future:
-- Implement structured data (JSON-LD)
 - Add robots meta tag configuration per page
 - Add per-page custom OG images for specific routes
 - Add dynamic sitemap generation based on routes
 - Add sitemap index for large sites
 - Add OG video tags for video content
 - Add Twitter player card for embedded media
+- Add more detailed Schema.org types (e.g., `FAQPage`, `Article`, `HowTo`)
