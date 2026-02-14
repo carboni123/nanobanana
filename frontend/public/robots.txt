@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+
+Sitemap: https://nanobanana.com.br/sitemap.xml
