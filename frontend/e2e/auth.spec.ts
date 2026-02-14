@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { setupMockAPI, testUser, login, logout } from './helpers';
+import { setupMockAPI, testUser, login } from './helpers';
 
 test.describe('Authentication Flow', () => {
   test.beforeEach(async ({ page }) => {

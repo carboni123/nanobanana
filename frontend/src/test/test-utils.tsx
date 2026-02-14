@@ -22,6 +22,7 @@ interface AllProvidersProps {
 /**
  * Wrapper component that includes all providers needed for testing
  */
+// eslint-disable-next-line react-refresh/only-export-components
 function AllProviders({ children }: AllProvidersProps) {
   return (
     <BrowserRouter>
@@ -72,5 +73,6 @@ export function renderWithProviders(
 // Re-export everything from React Testing Library
 // ============================================================================
 
+// eslint-disable-next-line react-refresh/only-export-components
 export * from '@testing-library/react';
 export { renderWithProviders as render };
