@@ -32,6 +32,7 @@ import type {
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useJsonLd } from '../hooks/useJsonLd';
 import { PAGE_META } from '../constants/seo';
 
 type TimeRange = 7 | 30 | 90;
@@ -44,6 +45,13 @@ interface KeyUsageData {
 
 export default function Usage() {
   useDocumentMeta(PAGE_META.usage);
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: PAGE_META.usage.title,
+    description: PAGE_META.usage.description,
+    url: PAGE_META.usage.url,
+  });
   // Data state
   const [summary, setSummary] = useState<UsageSummaryResponse | null>(null);
   const [dailyUsage, setDailyUsage] = useState<DailyUsageEntry[]>([]);

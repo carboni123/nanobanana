@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import JsonLd from './components/JsonLd';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
@@ -11,10 +12,39 @@ import ApiKeys from './pages/ApiKeys';
 import Usage from './pages/Usage';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
+import { SITE_NAME, SITE_TAGLINE, SITE_URL, SITE_DESCRIPTION, APP_VERSION } from './constants/seo';
+
+/** Schema.org WebApplication — present on every page */
+const webApplicationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All',
+  version: APP_VERSION,
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'BRL',
+  },
+};
+
+/** Schema.org Organization — present on every page */
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/og-default.png`,
+  description: `${SITE_NAME} - ${SITE_TAGLINE}`,
+};
 
 function App() {
   return (
     <ErrorBoundary>
+      <JsonLd data={[webApplicationSchema, organizationSchema]} />
       <AuthProvider>
         <Router>
           <Toaster

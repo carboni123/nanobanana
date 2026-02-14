@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { apiClient, ApiClientError } from '../services/api';
 import type { UpdateProfileRequest, ChangePasswordRequest } from '../types/api';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useJsonLd } from '../hooks/useJsonLd';
 import { PAGE_META } from '../constants/seo';
 
 interface ProfileFormData {
@@ -31,6 +32,13 @@ interface PasswordFormData {
 
 export default function Settings() {
   useDocumentMeta(PAGE_META.settings);
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: PAGE_META.settings.title,
+    description: PAGE_META.settings.description,
+    url: PAGE_META.settings.url,
+  });
   const { user, refreshUser } = useAuth();
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);

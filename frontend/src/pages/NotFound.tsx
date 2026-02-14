@@ -12,10 +12,18 @@
 
 import { Link, useNavigate } from 'react-router-dom';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useJsonLd } from '../hooks/useJsonLd';
 import { PAGE_META } from '../constants/seo';
 
 export default function NotFound() {
   useDocumentMeta(PAGE_META.notFound);
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: PAGE_META.notFound.title,
+    description: PAGE_META.notFound.description,
+    url: PAGE_META.notFound.url,
+  });
   const navigate = useNavigate();
 
   return (

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { ApiClientError } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useJsonLd } from '../hooks/useJsonLd';
 import { PAGE_META, SITE_NAME } from '../constants/seo';
 
 interface FormErrors {
@@ -13,6 +14,13 @@ interface FormErrors {
 
 export default function Login() {
   useDocumentMeta(PAGE_META.login);
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: PAGE_META.login.title,
+    description: PAGE_META.login.description,
+    url: PAGE_META.login.url,
+  });
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');

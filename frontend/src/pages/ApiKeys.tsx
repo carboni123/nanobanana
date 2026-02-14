@@ -16,10 +16,18 @@ import type { KeyResponse, CreateKeyResponse } from '../types/api';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useJsonLd } from '../hooks/useJsonLd';
 import { PAGE_META, SITE_NAME } from '../constants/seo';
 
 export default function ApiKeys() {
   useDocumentMeta(PAGE_META.apiKeys);
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: PAGE_META.apiKeys.title,
+    description: PAGE_META.apiKeys.description,
+    url: PAGE_META.apiKeys.url,
+  });
   const [keys, setKeys] = useState<KeyResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -3,6 +3,10 @@
  * Import from here instead of hardcoding strings in components.
  */
 
+/** App version injected by Vite from package.json at build time */
+declare const __APP_VERSION__: string;
+export const APP_VERSION: string = __APP_VERSION__;
+
 export const SITE_NAME = 'NanoBanana';
 export const SITE_TAGLINE = 'AI Image Generation API';
 export const SITE_URL = 'https://nanobanana.com.br';

@@ -16,6 +16,7 @@ import { apiClient } from '../services/api';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import { useJsonLd } from '../hooks/useJsonLd';
 import { PAGE_META, SITE_NAME } from '../constants/seo';
 
 interface DashboardStats {
@@ -27,6 +28,13 @@ interface DashboardStats {
 
 export default function Dashboard() {
   useDocumentMeta(PAGE_META.dashboard);
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: PAGE_META.dashboard.title,
+    description: PAGE_META.dashboard.description,
+    url: PAGE_META.dashboard.url,
+  });
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
