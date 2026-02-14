@@ -113,6 +113,8 @@ export const PAGE_META = {
 ### New Files Created
 - `frontend/src/constants/seo.ts` - SEO constants
 - `frontend/src/hooks/useDocumentMeta.ts` - Custom meta hook
+- `frontend/public/robots.txt` - Search engine crawler directives
+- `frontend/public/sitemap.xml` - XML sitemap for search engines
 
 ### Modified Files
 - `frontend/index.html` - Added default meta tags
@@ -125,6 +127,7 @@ export const PAGE_META = {
 - `frontend/src/pages/NotFound.tsx` - Added dynamic meta
 - `frontend/src/components/Layout.tsx` - Replaced hardcoded site name
 - `frontend/src/pages/__tests__/ApiKeys.test.tsx` - Updated test assertion
+- `frontend/nginx.conf` - Added robots.txt and sitemap.xml serving configuration
 
 ## SEO Best Practices Implemented
 
@@ -134,6 +137,10 @@ export const PAGE_META = {
 ✅ **Proper charset and viewport** - Mobile-friendly and properly encoded
 ✅ **Consistent branding** - Site name pulled from constants
 ✅ **Dynamic updates** - Meta tags update on navigation
+✅ **Robots.txt** - Proper crawler directives with sitemap reference
+✅ **XML Sitemap** - Well-formed sitemap listing public URLs
+✅ **Protected areas** - API and dashboard excluded from crawling
+✅ **Correct MIME types** - Proper Content-Type headers for SEO files
 
 ## Testing
 
@@ -142,6 +149,8 @@ export const PAGE_META = {
 2. Check browser tab title updates correctly
 3. Inspect `<meta name="description">` in DevTools
 4. Verify it changes on each route
+5. Access `/robots.txt` and verify content
+6. Access `/sitemap.xml` and verify XML structure
 
 ### Build Validation
 ```bash
@@ -149,6 +158,75 @@ cd frontend
 npm run build  # Should build successfully
 npm test      # Tests should pass (pre-existing failures not related to SEO)
 ```
+
+### SEO File Validation
+```bash
+# Validate robots.txt is accessible
+curl -I http://localhost/robots.txt
+# Should return: Content-Type: text/plain
+
+# Validate sitemap.xml is accessible
+curl -I http://localhost/sitemap.xml
+# Should return: Content-Type: application/xml
+
+# Validate XML structure
+python -c "import xml.etree.ElementTree as ET; ET.parse('frontend/public/sitemap.xml'); print('XML is well-formed')"
+```
+
+### 5. Robots.txt Configuration
+
+**File**: `frontend/public/robots.txt`
+
+SEO-friendly robots.txt that:
+- Allows all search engine crawlers (`User-agent: *`, `Allow: /`)
+- Disallows crawling of authenticated areas (`Disallow: /api/`, `Disallow: /dashboard`)
+- References the sitemap at `https://nanobanana.com.br/sitemap.xml`
+
+**Nginx Configuration**: Served at `/robots.txt` with `Content-Type: text/plain`
+
+### 6. XML Sitemap
+
+**File**: `frontend/public/sitemap.xml`
+
+Valid XML sitemap listing public URLs:
+- Home page: `https://nanobanana.com.br/`
+- Login page: `https://nanobanana.com.br/login`
+- Register page: `https://nanobanana.com.br/register`
+
+Each URL includes:
+- `<loc>`: The page URL
+- `<lastmod>`: Last modification date (2025-07-14)
+- `<changefreq>`: Update frequency (weekly for home, monthly for auth pages)
+- `<priority>`: Page priority (1.0 for home, 0.8 for auth pages)
+
+**Nginx Configuration**: Served at `/sitemap.xml` with `Content-Type: application/xml`
+
+### 7. Nginx SEO File Serving
+
+**File**: `frontend/nginx.conf`
+
+Dedicated location blocks ensure proper serving:
+```nginx
+location = /robots.txt {
+    root /usr/share/nginx/html;
+    add_header Content-Type text/plain;
+    access_log off;
+    log_not_found off;
+}
+
+location = /sitemap.xml {
+    root /usr/share/nginx/html;
+    add_header Content-Type application/xml;
+    access_log off;
+    log_not_found off;
+}
+```
+
+**Benefits**:
+- SEO files are served at the root path
+- Correct MIME types for search engine crawlers
+- No logging overhead for crawler requests
+- Prevents SPA fallback to index.html
 
 ## Future Enhancements
 
@@ -158,3 +236,5 @@ Potential improvements for the future:
 - Implement structured data (JSON-LD)
 - Add robots meta tag configuration per page
 - Implement dynamic meta images for social sharing
+- Add dynamic sitemap generation based on routes
+- Add sitemap index for large sites
